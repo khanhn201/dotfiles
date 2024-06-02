@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+rofi_command="rofi -theme $HOME/.config/rofi/config/powermenu.rasi"
+
+# Options
+shutdown="󰐥"
+reboot="󰜉"
+lock="󰌾"
+suspend=""
+logout=""
+ddir="$HOME/.config/rofi/config"
+
+
+# Variable passed to rofi
+options="$lock\n$reboot\n$shutdown"
+
+chosen="$(echo -e "$options" | $rofi_command -dmenu -u 2 -a 0 -selected-row 0)"
+case $chosen in
+    $shutdown)
+		systemctl poweroff
+        ;;
+    $reboot)
+		systemctl reboot
+        ;;
+    $lock)
+        betterlockscreen -l
+        ;;
+    $suspend)
+        mpc -q pause
+        sh $HOME/.local/bin/lock
+        systemctl suspend
+        ;;
+    $logout)
+        bspc quit
+        ;;
+esac
+
