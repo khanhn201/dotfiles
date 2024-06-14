@@ -22,7 +22,7 @@ return function()
 
 	watch(
 		[[sh -c "upower -i \"$(upower -e | grep BAT)\" | grep state"]],
-		1,
+		60,
 		function(_, stdout)
             if string.find(stdout, "discharging") then
 				local getstrength = [[upower -i "$(upower -e | grep BAT)" | grep percentage | awk '{print int($2)}']]

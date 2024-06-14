@@ -22,7 +22,7 @@ return function()
 	
     watch(
 		[[sh -c "nmcli -t -f active,ssid dev wifi | grep 'yes' | cut -d\: -f2"]],
-		1,
+		60,
 		function(_, stdout)
 			local net_ssid = stdout
 			net_ssid = string.gsub(net_ssid, "^%s*(.-)%s*$", "%1")

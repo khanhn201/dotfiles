@@ -22,7 +22,7 @@ return function()
 
 	watch(
 		[[sh -c "wpctl get-volume @DEFAULT_AUDIO_SINK@"]],
-		0.1,
+		5,
 		function(_, stdout)
             if stdout:find("MUTED") then
                volume.icon:set_text("󰝟 muted")

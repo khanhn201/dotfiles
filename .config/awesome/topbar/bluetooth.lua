@@ -22,7 +22,7 @@ return function()
 	
     watch(
 		[[sh -c "bluetoothctl show | grep Powered"]],
-		1,
+		10,
 		function(_, stdout)
 			local enabled = stdout
 

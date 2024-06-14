@@ -22,7 +22,7 @@ return function()
 
 	watch(
 		[[sh -c "brightnessctl | grep Current | awk '{ print $4 }'"]],
-		0.1,
+		10,
 		function(_, stdout)
             local level = tonumber(string.match(stdout, "%d+"))
             if level < 7 then

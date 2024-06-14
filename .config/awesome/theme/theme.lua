@@ -23,10 +23,11 @@ theme.fg_focus      = palette.surface0.hex
 theme.fg_urgent     = palette.crust.hex
 theme.fg_minimize   = palette.crust.hex
 
-theme.useless_gap   = dpi(0)
-theme.border_width  = dpi(1)
+theme.useless_gap   = dpi(3)
+theme.snapper_gap   = dpi(3)
+theme.border_width  = dpi(3)
 theme.border_normal = palette.base.hex
-theme.border_focus  = palette.text.hex
+theme.border_focus  = palette.green.hex
 theme.border_marked = palette.maroon.hex
 
 --- Black
