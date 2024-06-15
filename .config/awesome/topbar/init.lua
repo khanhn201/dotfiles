@@ -1,11 +1,7 @@
 local awful = require("awful")
 local wibox = require("wibox")
-local gears = require("gears")
 local beautiful = require("beautiful")
 
-local function rounded_wibar(cr, width, height)
-    gears.shape.partially_rounded_rect(cr, width, height, true, true, true, true, 12)
-end
 
 return function(s)
     s.network = require("topbar.network")()
@@ -25,11 +21,9 @@ return function(s)
     s.topbar = awful.wibar({
         screen = s,
         position = "top",
-        width = 1920 - 4*beautiful.useless_gap,
-        shape = rounded_wibar
+        width = 1920 - 4*beautiful.useless_gap
     })
     s.topbar_container = wibox.widget({
-        bg = "#00ff00ff",
         {
             layout = wibox.layout.align.horizontal,
             expand = "inside",
@@ -38,6 +32,7 @@ return function(s)
             {
                 layout = wibox.layout.fixed.horizontal,
                 spacing = 20,
+                wibox.widget.systray(),
                 s.volume,
                 s.brightness,
                 s.battery,
