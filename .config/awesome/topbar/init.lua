@@ -12,6 +12,7 @@ return function(s)
     s.volume = require("topbar.volume")()
     s.brightness = require("topbar.brightness")()
     s.player = require("topbar.player")()
+    s.fcitx5 = require("topbar.fcitx5")()
 
     local taglist = awful.widget.taglist {
         screen = s,
@@ -32,7 +33,8 @@ return function(s)
             {
                 layout = wibox.layout.fixed.horizontal,
                 spacing = 20,
-                wibox.widget.systray(),
+                -- wibox.widget.systray(),
+                s.fcitx5,
                 s.volume,
                 s.brightness,
                 s.battery,

@@ -20,7 +20,7 @@ return function()
 
 	watch(
 		[[sh -c "playerctl metadata --format \"{{ artist }} - {{ title }}\""]],
-		10,
+		5,
 		function(_, stdout)
             player.icon:set_text(stdout)
 		end
