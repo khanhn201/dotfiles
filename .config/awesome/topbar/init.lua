@@ -45,8 +45,8 @@ return function(s)
             },
         },
 		widget = wibox.container.margin,
-        left = 10,
-        right = 10
+        left = 15,
+        right = 15
     })
     s.topbar:setup {
         layout = wibox.layout.flex.horizontal,

@@ -19,9 +19,11 @@ theme.bg_minimize   = "#444444"
 theme.bg_systray    = theme.bg_normal
 
 theme.fg_normal     = palette.text.hex
-theme.fg_focus      = palette.surface0.hex
+theme.fg_focus      = palette.green.hex
 theme.fg_urgent     = palette.crust.hex
 theme.fg_minimize   = palette.crust.hex
+theme.taglist_fg_empty = palette.surface2.hex
+theme.taglist_bg_focus = theme.bg_normal
 
 theme.useless_gap   = dpi(3)
 theme.snapper_gap   = dpi(3)
@@ -62,14 +64,6 @@ theme.color14 = palette.teal.hex
 theme.color7 = palette.subtext1.hex
 theme.color15 = palette.subtext0.hex
 
--- Generate taglist squares:
-local taglist_square_size = dpi(4)
-theme.taglist_squares_sel = theme_assets.taglist_squares_sel(
-    taglist_square_size, theme.fg_normal
-)
-theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(
-    taglist_square_size, theme.fg_normal
-)
 
 theme.wallpaper = "~/.config/awesome/theme/wallpaper.jpg"
 -- Define the icon theme for application icons. If not set then the icons
