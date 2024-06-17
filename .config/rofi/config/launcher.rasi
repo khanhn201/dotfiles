@@ -1,10 +1,7 @@
 configuration {
     show-icons:                     true;
     display-drun: 		            "";
-    drun-display-format:            "{icon} {name}";
     disable-history:                false;
-    click-to-exit: 		            true;
-    location:                       0;
 }
 
 @import "font.rasi"
@@ -48,9 +45,6 @@ entry {
     horizontal-align:               0;
     placeholder:                    "Search...";
     blink:                          true;
-    border:                  	    0px 0px 2px 0px;
-    border-color:                   @BDR;
-    border-radius:                  10px;
     padding:                        8px;
 }
 

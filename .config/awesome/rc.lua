@@ -129,6 +129,9 @@ globalkeys = gears.table.join(
         awful.util.spawn("bash /home/nekoconn/.config/rofi/bin/powermenu", false)
     end,{description = "powermenu", group = "launcher"}),
     
+    awful.key({ modkey },            "s",     function ()
+        awful.util.spawn("bash /home/nekoconn/.config/rofi/bin/screenshot", false)
+    end,{description = "screenshot", group = "launcher"}),
     -- Navigation
     awful.key({ modkey, }, "Left",  function () awful.client.focus.global_bydirection("left") end,
               {description = "focus left", group = "client"}),
