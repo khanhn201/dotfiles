@@ -8,3 +8,8 @@ export PATH
 
 export CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1
 export EDITOR="nvim"
+
+# nnn
+export NNN_FIFO=/tmp/nnn.fifo
+export NNN_OPENER=/home/nekoconn/.config/nnn/plugins/nuke
+export NNN_PLUG='v:preview-tabbed'
