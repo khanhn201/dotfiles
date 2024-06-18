@@ -7,6 +7,10 @@ return {
         end,
     },
     {
+        "lambdalisue/vim-suda",
+        lazy = false
+    },
+    {
         "neovim/nvim-lspconfig",
         config = function()
           require("nvchad.configs.lspconfig").defaults()
