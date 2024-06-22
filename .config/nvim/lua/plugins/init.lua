@@ -31,16 +31,6 @@ return {
         end
     },
     {
-        "neovim/nvim-lspconfig",
-        config = function()
-          require("nvchad.configs.lspconfig").defaults()
-          require "configs.lspconfig"
-        end,
-    },
-    {
-        "norcalli/nvim-colorizer.lua",
-    },
-    {
         "williamboman/mason.nvim",
         opts = {
             ensure_installed = {
@@ -54,7 +44,17 @@ return {
             },
         },
     },
-    -- "williamboman/mason-lspconfig.nvim",
+    "williamboman/mason-lspconfig.nvim",
+    {
+        "neovim/nvim-lspconfig",
+        config = function()
+          require("nvchad.configs.lspconfig").defaults()
+          require "configs.lspconfig"
+        end,
+    },
+    {
+        "norcalli/nvim-colorizer.lua",
+    },
     {
         "nvim-treesitter/nvim-treesitter",
   	    opts = {

@@ -10,7 +10,8 @@ local servers = {
     "tsserver",
     "pyright"
 }
-
+require("mason").setup()
+require("mason-lspconfig").setup()
 -- lsps with default config
 for _, lsp in ipairs(servers) do
   lspconfig[lsp].setup {

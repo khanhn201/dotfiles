@@ -47,3 +47,6 @@ zstyle :compinstall filename '/home/nekoconn/.zshrc'
 autoload -Uz compinit
 compinit
 # End of lines added by compinstall
+
+# Created by `pipx` on 2024-06-19 16:50:39
+export PATH="$PATH:/home/nekoconn/.local/bin"
