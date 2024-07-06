@@ -1,4 +1,3 @@
-. "$HOME/.cargo/env"
 
 # Paths and Env
 typeset -U path PATH
@@ -13,3 +12,4 @@ export EDITOR="nvim"
 export NNN_FIFO=/tmp/nnn.fifo
 export NNN_OPENER=/home/nekoconn/.config/nnn/plugins/nuke
 export NNN_PLUG='v:preview-tabbed'
+. "$HOME/.cargo/env"

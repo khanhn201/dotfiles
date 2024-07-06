@@ -8,7 +8,8 @@ local servers = {
     "html",
     "cssls",
     "tsserver",
-    "pyright"
+    "pyright",
+    "rust_analyzer"
 }
 require("mason").setup()
 require("mason-lspconfig").setup()
