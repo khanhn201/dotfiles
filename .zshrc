@@ -11,6 +11,12 @@ setopt PROMPT_SUBST
 autoload -U colors && colors
 PS1='%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$fg[cyan]%}${vcs_info_msg_0_}%{$reset_color%}$%b '
 
+# The following lines were added by compinstall
+zstyle :compinstall filename '/home/nekoconn/.zshrc'
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
 
 # Alias
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
@@ -31,6 +37,19 @@ nnn ()
     }
 }
 
+venv()
+{
+  source ~/python_venv/$1/bin/activate
+}
+_venv_complete() {
+  if (( CURRENT == 2 )); then
+    local -a environments
+    environments=(~/python_venv/*(/:t))
+    _describe "environments" environments
+  fi
+}
+compdef _venv_complete venv
+
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=10000
@@ -41,12 +60,6 @@ bindkey -e
 # End of lines configured by zsh-newuser-install
 
 
-# The following lines were added by compinstall
-zstyle :compinstall filename '/home/nekoconn/.zshrc'
-
-autoload -Uz compinit
-compinit
-# End of lines added by compinstall
 
 # Created by `pipx` on 2024-06-19 16:50:39
 export PATH="$PATH:/home/nekoconn/.local/bin"

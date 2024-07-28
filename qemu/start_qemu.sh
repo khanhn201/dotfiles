@@ -1,11 +1,10 @@
-#!/bin/bash
 
 qemu-system-x86_64 \
     -machine q35,smm=off,vmport=off,accel=kvm \
     -global kvm-pit.lost_tick_policy=discard \
     -cpu host,topoext,kvm=off,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
     -smp sockets=1,cores=5,threads=2 \
-    -m 10G \
+    -m 16G \
     -mem-prealloc \
     -rtc base=localtime,clock=host,driftfix=slew \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/ovmf/x64/OVMF_CODE.fd \
