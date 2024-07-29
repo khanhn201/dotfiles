@@ -20,7 +20,7 @@ case $chosen in
 		systemctl reboot
         ;;
     $lock)
-        betterlockscreen -l
+        hyprlock 
         ;;
 esac
 
