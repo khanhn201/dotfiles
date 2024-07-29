@@ -21,6 +21,7 @@ compinit
 # Alias
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias vim=nvim
+
 # nnn
 nnn ()
 {
@@ -49,6 +50,8 @@ _venv_complete() {
   fi
 }
 compdef _venv_complete venv
+
+
 
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile

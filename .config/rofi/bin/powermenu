@@ -5,6 +5,7 @@ rofi_command="rofi -theme $HOME/.config/rofi/config/powermenu.rasi"
 shutdown="󰐥"
 reboot="󰜉"
 lock="󰌾"
+
 ddir="$HOME/.config/rofi/config"
 
 

@@ -2,6 +2,7 @@
 # Paths and Env
 typeset -U path PATH
 path=(/usr/local/texlive/2024/bin/x86_64-linux $path)
+path=(/home/nekoconn/qemu/ $path)
 
 export PATH
 
