@@ -3,24 +3,28 @@ rofi_command="rofi -theme $HOME/.config/rofi/config/screenshot.rasi"
 
 time=`date +%Y-%m-%d-%I-%M-%S`
 dir="/home/nekoconn/Pictures/Screenshots"
-file="Screenshot_${time}.png"
+file="${dir}/Screenshot_${time}.png"
 
 screen="󰍹 Capture Desktop"
 area="󰆞 Capture Area"
 window="󰖲 Capture Window"
 
+geom=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')
 
 # take shots
 shotnow () {
-	cd ${dir} && sleep 0.5 && maim -u -f png | tee "$file" | xclip -selection clipboard -t image/png
+	# sleep 0.5 && maim -u -f png | tee "$file" | xclip -selection clipboard -t image/png
+    sleep 0.5 && grim - | tee "$file" | wl-copy --type image/png
 }
 
 shotwin () {
-	cd ${dir} && maim -u -f png -i `xdotool getactivewindow` | tee "$file" | xclip -selection clipboard -t image/png
+	# maim -u -f png -i `xdotool getactivewindow` | tee "$file" | xclip -selection clipboard -t image/png
+    sleep 0.5 && grim -g "$geom" - | tee "$file" | wl-copy --type image/png
 }
 
 shotarea () {
-	cd ${dir} && maim -u -f png -s -b 2 -c 0.35,0.55,0.85,0.25 -l | tee "$file" | xclip -selection clipboard -t image/png
+	# maim -u -f png -s -b 2 -c 0.35,0.55,0.85,0.25 -l | tee "$file" | xclip -selection clipboard -t image/png
+    grim -g "$(slurp -d)" - | tee "$file" | wl-copy --type image/png
 }
 # Variable passed to rofi
 options="$screen\n$area\n$window"
