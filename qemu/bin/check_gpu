@@ -1,0 +1,1 @@
+lspci -nnk -d 10de:25e0 | grep "in use" | grep -q "nvidia" && echo "on" || echo "off"
