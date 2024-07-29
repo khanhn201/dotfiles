@@ -1,6 +1,5 @@
 set -x
 
-optimus-manager --no-confirm --switch integrated <<< "Y"
 systemctl stop display-manager.service
 
 modprobe -r nvidia_uvm

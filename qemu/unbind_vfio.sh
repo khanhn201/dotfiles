@@ -12,5 +12,5 @@ modprobe nvidia_drm
 modprobe nvidia_modeset
 modprobe nvidia
 
-optimus-manager --no-confirm --switch hybrid <<< "Y"
+# optimus-manager --no-confirm --switch hybrid <<< "Y"
 systemctl restart display-manager.service

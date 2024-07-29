@@ -1,0 +1,73 @@
+{
+    "modules-left": [
+        "hyprland/workspaces"
+    ],
+    "modules-right": [
+        "pulseaudio",
+        "backlight",
+        "battery",
+        "network",
+        "clock#date",
+        "clock#time"
+    ],
+    "hyprland/workspaces": {
+        "persistent-workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": [],
+            "5": [],
+            "6": [],
+            "7": [],
+            "8": [],
+            "9": [],
+            "10": []
+        }
+    },
+    "backlight": {
+        "format": "{icon} {percent}",
+        "format-icons": ["", "", "", "", "", "", "", "", "", "󰁹", "", "", "", "", ""],
+        "tooltip": false
+
+    },
+    "battery": {
+        "format": "{icon} {capacity}",
+        "tooltip": false,
+        "format-icons": {
+            "discharging": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+            "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉","󰢞", "󰂊", "󰂋", "󰂅"],
+            "plugged": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉","󰢞", "󰂊", "󰂋", "󰂅"]
+        }
+    },
+    "network": {
+        "format": "{ifname}",
+        "format-wifi": "{icon} {essid}",
+        "format-ethernet": "󰈀 {ipaddr}",
+        "format-disconnected": "󰤮 off",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
+        "tooltip": false
+    },
+    "clock#date": {
+        "name": "date",
+        "format": "󰃭 {:%a %b %d, %Y}",
+        "tooltip-format": "<tt>{calendar}</tt>",
+        "smooth-scrolling-threshold": 0.001,
+        "calendar": {
+            "format": {
+                "months": "<span color='#f9e2af'><b>{}</b></span>",
+                "days": "<span color='#cdd6f4'><b>{}</b></span>",
+                "weekdays": "<span color='#89b4fa'><b>{}</b></span>",
+                "today": "<span color='#f38ba8'><b>{}</b></span>"
+            },
+            "on-scroll": -1
+        },
+        "actions": {
+            "on-scroll-up": "shift_up",
+            "on-scroll-down": "shift_down"
+        }
+    },
+    "clock#time": {
+        "format": "󰥔 {:%H:%M}",
+        "tooltip": false
+    }
+}
