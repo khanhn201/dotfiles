@@ -18,7 +18,7 @@ tooltip {
 }
 
 .module {
-    padding: 5 12;
+    padding: 5 10;
     background: alpha(@base, 1);
     border-radius: 10;
 }
