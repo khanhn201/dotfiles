@@ -16,8 +16,14 @@ unbind_vfio () {
     systemctl restart display-manager.service
 }
 
-if [ "$euid" -ne 0 ]; then
-    echo "this script must be run with sudo privileges. exiting."
+if [[ "$EUID" -ne 0 ]]; then
+    echo "This script must be run with sudo privileges. Exiting."
+    exit 1
+fi
+
+output=$(check_gpu)
+if [[ "$output" == "on" ]]; then
+    echo "GPU is already enabled"
     exit 1
 fi
 
