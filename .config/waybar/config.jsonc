@@ -3,6 +3,7 @@
         "hyprland/workspaces"
     ],
     "modules-right": [
+        "custom/fcitx5",
         "pulseaudio",
         "backlight",
         "battery",
@@ -23,6 +24,14 @@
             "9": [],
             "10": []
         }
+    },
+    "custom/fcitx5": {
+        
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}",
+        "format-muted": "󰝟 muted",
+        "format-icons": ["󰕿", "󰖀", "󰕾"]
     },
     "backlight": {
         "format": "{icon} {percent}",

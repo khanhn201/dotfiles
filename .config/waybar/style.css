@@ -34,7 +34,6 @@ tooltip {
 
 #workspaces button {
     margin: 0 4;
-    padding: 0;
 }
 
 #workspaces button.empty label {
@@ -43,6 +42,10 @@ tooltip {
 
 #workspaces button.active label {
     color: @red; 
+}
+
+#pulseaudio {
+    color: @teal
 }
 
 #backlight {
