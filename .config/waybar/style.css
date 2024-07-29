@@ -35,6 +35,10 @@ tooltip {
     color: @red; 
 }
 
+#custom-gpu {
+    color: @peach
+}
+
 #cpu {
     color: @red
 }

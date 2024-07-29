@@ -11,6 +11,7 @@
         "mpris"
     ],
     "modules-right": [
+        "custom/gpu",
         "cpu",
         "memory",
         "custom/fcitx5",
@@ -46,6 +47,13 @@
         },
         "title-len": 30,
         "artist-len": 20
+    },
+    "custom/gpu": {
+        "exec": "bash ~/.config/waybar/custom_modules/gpu.sh",
+        "return-type": "json",
+        "interval": 1,
+        "tooltip": false
+        
     },
     "cpu": {
         "interval": 10,
