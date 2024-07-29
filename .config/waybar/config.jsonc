@@ -1,12 +1,23 @@
 {
+    "margin-top": 4,
+    "margin-left": 4,
+    "margin-right": 4,
+    "spacing": 4,
+    "fixed-center": false,
     "modules-left": [
         "hyprland/workspaces"
     ],
+    "modules-center": [
+        "mpris"
+    ],
     "modules-right": [
+        "cpu",
+        "memory",
         "custom/fcitx5",
         "pulseaudio",
         "backlight",
         "battery",
+        "bluetooth",
         "network",
         "clock#date",
         "clock#time"
@@ -25,7 +36,32 @@
             "10": []
         }
     },
+    "mpris": {
+        "format": "{status_icon} {title} - {artist}",
+        "tooltip": false,
+        "status-icons": {
+            "paused": "󰏤",
+            "playing": "󰐊",
+            "stopped": "󰓛"
+        },
+        "title-len": 30,
+        "artist-len": 20
+    },
+    "cpu": {
+        "interval": 10,
+        "tooltip": false,
+        "format": "󰘚 {usage}"
+    },
+    "memory": {
+        "interval": 10,
+        "tooltip": false,
+        "format": "󰍛 {percentage}"
+    },
     "custom/fcitx5": {
+        "exec": "bash ~/.config/waybar/custom_modules/fcitx5.sh",
+        "return-type": "json",
+        "interval": 1,
+        "tooltip": false
         
     },
     "pulseaudio": {
@@ -47,6 +83,13 @@
             "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉","󰢞", "󰂊", "󰂋", "󰂅"],
             "plugged": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉","󰢞", "󰂊", "󰂋", "󰂅"]
         }
+    },
+    "bluetooth": {
+        "format": " {status}",
+        "format-disabled": "󰂲 off",
+        "format-on": "󰂯 on",
+        "format-off": "󰂲 off",
+        "format-connected": "󰂱 {num_connections}"
     },
     "network": {
         "format": "{ifname}",

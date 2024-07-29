@@ -18,18 +18,9 @@ tooltip {
 }
 
 .module {
-    margin: 0 2;
-    margin-top: 4;
     padding: 5 12;
     background: alpha(@base, 1);
     border-radius: 10;
-}
-
-.modules-left {
-    margin-left: 2;
-}
-.modules-right {
-    margin-right: 2;
 }
 
 #workspaces button {
@@ -44,6 +35,18 @@ tooltip {
     color: @red; 
 }
 
+#cpu {
+    color: @red
+}
+
+#memory {
+    color: @flamingo
+}
+
+#custom-fcitx5 {
+    color: @pink
+}
+
 #pulseaudio {
     color: @teal
 }
@@ -56,12 +59,16 @@ tooltip {
     color: @green
 }
 
+#bluetooth {
+    color: @blue
+}
+
 #network {
     color: @mauve;
 }
 
 #clock.date {
-    color: @red;
+    color: @maroon;
 }
 
 #clock.time {
