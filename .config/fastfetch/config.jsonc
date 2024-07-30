@@ -5,7 +5,13 @@
       "source": "~/.config/fastfetch/logo"
   },
   "modules": [
-    "title",
+    {
+        "type": "title",
+        "color": {
+            "user": "red",
+            "host": "magenta"
+        }
+    },
     "separator",
     "os",
     "host",
@@ -13,6 +19,7 @@
     "uptime",
     "packages",
     "shell",
+    "chassis",
     "display",
     "de",
     "wm",
@@ -25,12 +32,13 @@
     "terminalfont",
     "cpu",
     "gpu",
+    "opengl",
     "memory",
     "swap",
-    "disk",
+    // "disk",
     "localip",
-    "battery",
-    "poweradapter",
+    // "battery",
+    // "poweradapter",
     "locale",
     "break",
     "colors"

@@ -51,12 +51,6 @@ _venv_complete() {
 }
 compdef _venv_complete venv
 
-fetch()
-{
-    ascii-image-converter -bC --threshold 80 -W 64 ~/Pictures/azki/GRWnwQvagAAL4g3.png | fastfetch --file-raw -
-}
-
-
 # Lines configured by zsh-newuser-install
 HISTFILE=~/.histfile
 HISTSIZE=10000
