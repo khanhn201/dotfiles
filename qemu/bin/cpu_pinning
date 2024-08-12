@@ -1,0 +1,21 @@
+total=$(nproc)
+offset=$((total-12))
+extraCores=$((offset-2))-$((offset-1))
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PYTHON_SCRIPT="$SCRIPT_DIR/qemu-affinity.py"
+
+qemu_pid=$(pgrep -f "qemu-system-x86_64")
+if [ -z "$qemu_pid" ]; then
+    echo "Qemu is not running"
+    exit 1
+else
+    echo "PID: $qemu_pid"
+fi
+
+python3 "$PYTHON_SCRIPT" $qemu_pid -v \
+	-p $extraCores \
+	-q $extraCores \
+	-i *:$extraCores \
+	-w *:$extraCores \
+	-k $(seq -s ' ' $((offset)) $((total-1)))
