@@ -1,5 +1,6 @@
 unbind_vfio () {
     set -x
+    hyprland_gpu_config on
 
     modprobe -r vfio_pci
     modprobe -r vfio_iommu_type1

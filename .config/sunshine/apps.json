@@ -20,12 +20,10 @@
         {
             "name": "Low Res Desktop",
             "image-path": "desktop.png",
-            "prep-cmd": [
-                {
-                    "do": "xrandr --output HDMI-1 --mode 1920x1080",
-                    "undo": "xrandr --output HDMI-1 --mode 1920x1200"
-                }
-            ]
+            "exclude-global-prep-cmd": "",
+            "auto-detach": "true",
+            "wait-all": "true",
+            "exit-timeout": "5"
         },
         {
             "name": "Steam Big Picture",

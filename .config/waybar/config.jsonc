@@ -85,7 +85,7 @@
     },
     "battery": {
         "format": "{icon} {capacity}",
-        "tooltip": false,
+        "tooltip-format": "{power}",
         "format-icons": {
             "discharging": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
             "charging": ["󰢜", "󰂆", "󰂇", "󰂈", "󰢝", "󰂉","󰢞", "󰂊", "󰂋", "󰂅"],

@@ -1,6 +1,7 @@
 
 bind_vfio () {
     set -x
+    hyprland_gpu_config off
 
     systemctl stop display-manager.service
 
