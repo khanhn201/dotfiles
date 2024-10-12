@@ -1,14 +1,32 @@
 
 bind_vfio () {
     set -x
-    hyprland_gpu_config off
 
     systemctl stop display-manager.service
+    unload_module() {
+        local module=$1
+        local retries=5
+        local delay=1
 
-    modprobe -r nvidia_uvm
-    modprobe -r nvidia_drm
-    modprobe -r nvidia_modeset
-    modprobe -r nvidia
+        while [ $retries -gt 0 ]; do
+            if modprobe -r $module; then
+                echo "$module unloaded successfully."
+                return 0
+            else
+                echo "Failed to unload $module. Retrying in $delay seconds..."
+                sleep $delay
+                retries=$((retries - 1))
+            fi
+        done
+
+        echo "Failed to unload $module after multiple attempts."
+        return 1
+    }
+
+    unload_module nvidia_uvm
+    unload_module nvidia_drm
+    unload_module nvidia_modeset
+    unload_module nvidia
 
     virsh nodedev-detach pci_0000_01_00_0
     virsh nodedev-detach pci_0000_01_00_1
@@ -26,11 +44,5 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-output=$(check_gpu)
-if [ "$output" == "off" ]; then
-    echo "GPU is already disabled"
-    exit 1
-fi
-
 export -f bind_vfio
-nohup bash -c bind_vfio > /dev/null 2>&1 &
+nohup bash -c bind_vfio > /home/nekoconn/qemu/bin/logfile 2>&1 &

@@ -1,10 +1,29 @@
 unbind_vfio () {
     set -x
-    hyprland_gpu_config on
 
-    modprobe -r vfio_pci
-    modprobe -r vfio_iommu_type1
-    modprobe -r vfio
+    unload_module() {
+        local module=$1
+        local retries=5
+        local delay=1
+
+        while [ $retries -gt 0 ]; do
+            if modprobe -r $module; then
+                echo "$module unloaded successfully."
+                return 0
+            else
+                echo "Failed to unload $module. Retrying in $delay seconds..."
+                sleep $delay
+                retries=$((retries - 1))
+            fi
+        done
+
+        echo "Failed to unload $module after multiple attempts."
+        return 1
+    }
+
+    unload_module vfio_pci
+    unload_module vfio_iommu_type1
+    unload_module vfio
 
     virsh nodedev-reattach pci_0000_01_00_0
     virsh nodedev-reattach pci_0000_01_00_1
@@ -19,12 +38,6 @@ unbind_vfio () {
 
 if [[ "$EUID" -ne 0 ]]; then
     echo "This script must be run with sudo privileges. Exiting."
-    exit 1
-fi
-
-output=$(check_gpu)
-if [[ "$output" == "on" ]]; then
-    echo "GPU is already enabled"
     exit 1
 fi
 
