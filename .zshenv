@@ -13,7 +13,7 @@ export EDITOR="nvim"
 # Nek
 export NEK_SOURCE_ROOT="/home/nekoconn/code/seal/Nek5000"
 export PATH=$NEK_SOURCE_ROOT/bin:$PATH
-export NEKRS_HOME=$HOME/.local/nekrs
+export NEKRS_HOME=$HOME/.local/nekrs-next-d0f3cff
 export PATH=$NEKRS_HOME/bin:$PATH
 
 # nnn
