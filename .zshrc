@@ -38,9 +38,13 @@ nnn ()
     }
 }
 
+open_vpn()
+{
+    sudo openconnect --authgroup=openconnect1 --verbose vpn.illinois.edu
+}
 venv()
 {
-  source ~/python_venv/$1/bin/activate
+    source ~/python_venv/$1/bin/activate
 }
 _venv_complete() {
   if (( CURRENT == 2 )); then
@@ -64,3 +68,4 @@ bindkey -e
 
 # Created by `pipx` on 2024-06-19 16:50:39
 export PATH="$PATH:/home/nekoconn/.local/bin"
+
