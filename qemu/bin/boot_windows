@@ -4,7 +4,7 @@ nohup qemu-system-x86_64 \
     -name windows11,debug-threads=on \
     -machine q35,smm=off,vmport=off,accel=kvm \
     -global kvm-pit.lost_tick_policy=discard \
-    -cpu host,topoext,kvm=on,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
+    -cpu host,topoext,kvm=off,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
     -smp sockets=1,cores=6,threads=2 \
     -m 16G \
     -mem-prealloc \
@@ -27,6 +27,7 @@ nohup qemu-system-x86_64 \
     -usbdevice mouse \
     -usbdevice keyboard \
     -device usb-host,vendorid=0x045e,productid=0x0b12 \
+    -device usb-host,vendorid=0x045e,productid=0x028e \
     -spice port=5900,addr=127.0.0.1,disable-ticketing=on > /dev/null 2>&1 &
 
 sudo cpu_pinning

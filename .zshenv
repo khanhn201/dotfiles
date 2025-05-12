@@ -18,6 +18,6 @@ export PATH=$NEKRS_HOME/bin:$PATH
 
 # nnn
 export NNN_FIFO=/tmp/nnn.fifo
-export NNN_OPENER=/home/nekoconn/.config/nnn/plugins/nuke
-export NNN_PLUG='v:preview-tabbed'
+# export NNN_OPENER=/home/nekoconn/.config/nnn/plugins/nuke
+# export NNN_PLUG='v:preview-tabbed'
 . "$HOME/.cargo/env"
