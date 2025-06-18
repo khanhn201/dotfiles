@@ -27,6 +27,8 @@ nohup qemu-system-x86_64 \
     -usbdevice mouse \
     -usbdevice keyboard \
     -device usb-host,vendorid=0x045e,productid=0x0b12 \
+    -device usb-host,vendorid=0x2dc8,productid=0x3107 \
+    -device usb-host,vendorid=0x2dc8,productid=0x3106 \
     -device usb-host,vendorid=0x045e,productid=0x028e \
     -spice port=5900,addr=127.0.0.1,disable-ticketing=on > /dev/null 2>&1 &
 
