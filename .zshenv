@@ -16,6 +16,7 @@ export PATH=$NEK_SOURCE_ROOT/bin:$PATH
 export NEKRS_HOME=$HOME/.local/nekrs-next-d0f3cff
 export NEKRS_HOME=$HOME/.local/nekrs-mv
 export PATH=$NEKRS_HOME/bin:$PATH
+export PATH=/home/nekoconn/code/seal/reframe/bin:$PATH
 
 # nnn
 export NNN_FIFO=/tmp/nnn.fifo

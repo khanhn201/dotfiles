@@ -1,5 +1,6 @@
 cp /usr/share/edk2/x64/OVMF_VARS.4m.fd /tmp/my_OVMF_VARS.4m.fd
 
+
 nohup qemu-system-x86_64 \
     -name windows11,debug-threads=on \
     -machine q35,smm=off,vmport=off,accel=kvm \
@@ -35,3 +36,4 @@ nohup qemu-system-x86_64 \
 sudo cpu_pinning
 
 
+#    -nic bridge,br=br0,model=virtio-net-pci \
