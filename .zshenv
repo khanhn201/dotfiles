@@ -11,12 +11,12 @@ export CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1
 export EDITOR="nvim"
 
 # Nek
-export NEK_SOURCE_ROOT="/home/nekoconn/code/seal/Nek5000"
+export NEK_SOURCE_ROOT="/home/nekoconn/code/seal/Nek5000-nandu90"
 export PATH=$NEK_SOURCE_ROOT/bin:$PATH
-export NEKRS_HOME=$HOME/.local/nekrs-next-d0f3cff
-export NEKRS_HOME=$HOME/.local/nekrs-mv
+export NEKRS_HOME=$HOME/.local/nekrs-khanhn
 export PATH=$NEKRS_HOME/bin:$PATH
 export PATH=/home/nekoconn/code/seal/reframe/bin:$PATH
+export PATH=/home/nekoconn/ParaView/bin:$PATH
 
 # nnn
 export NNN_FIFO=/tmp/nnn.fifo

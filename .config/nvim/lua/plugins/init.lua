@@ -39,7 +39,6 @@ return {
         "html-lsp",
         "css-lsp",
         "prettier",
-        "pyright",
         "fortls",
         "typescript-language-server",
         "rust-analyzer"

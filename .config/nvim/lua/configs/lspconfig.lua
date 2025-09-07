@@ -8,7 +8,6 @@ local servers = {
     "html",
     "cssls",
     "ts_ls",
-    "pyright",
     "rust_analyzer"
 }
 require("mason").setup()

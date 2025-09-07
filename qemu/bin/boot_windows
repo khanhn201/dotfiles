@@ -7,7 +7,7 @@ nohup qemu-system-x86_64 \
     -global kvm-pit.lost_tick_policy=discard \
     -cpu host,topoext,kvm=off,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
     -smp sockets=1,cores=6,threads=2 \
-    -m 16G \
+    -m 12G \
     -mem-prealloc \
     -rtc base=utc,clock=host,driftfix=slew \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd \
@@ -23,8 +23,8 @@ nohup qemu-system-x86_64 \
     -audiodev pa,id=audio0,timer-period=100 \
     -device ich9-intel-hda \
     -device hda-micro,audiodev=audio0 \
-    -device ivshmem-plain,memdev=ivshmem,bus=pcie.0 \
-    -object memory-backend-file,id=ivshmem,share=on,mem-path=/dev/shm/looking-glass,size=32M \
+    -device ivshmem-plain,id=shmem0,memdev=looking-glass \
+    -object memory-backend-file,id=looking-glass,share=yes,mem-path=/dev/kvmfr0,size=32M \
     -usbdevice mouse \
     -usbdevice keyboard \
     -device usb-host,vendorid=0x045e,productid=0x0b12 \
