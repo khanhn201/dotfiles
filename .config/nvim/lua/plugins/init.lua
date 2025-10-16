@@ -30,29 +30,29 @@ return {
       }
     end,
   },
-  {
-    "williamboman/mason.nvim",
-    opts = {
-      ensure_installed = {
-        "lua-language-server",
-        "stylua",
-        "html-lsp",
-        "css-lsp",
-        "prettier",
-        "fortls",
-        "typescript-language-server",
-        "rust-analyzer"
-      },
-    },
-  },
-  "williamboman/mason-lspconfig.nvim",
-  {
-    "neovim/nvim-lspconfig",
-    config = function()
-      require("nvchad.configs.lspconfig").defaults()
-      require "configs.lspconfig"
-    end,
-  },
+  -- {
+  --   "williamboman/mason.nvim",
+  --   opts = {
+  --     ensure_installed = {
+  --       "lua-language-server",
+  --       "stylua",
+  --       "html-lsp",
+  --       "css-lsp",
+  --       "prettier",
+  --       "fortls",
+  --       "typescript-language-server",
+  --       "rust-analyzer"
+  --     },
+  --   },
+  -- },
+  -- "williamboman/mason-lspconfig.nvim",
+  -- {
+  --   "neovim/nvim-lspconfig",
+  --   config = function()
+  --     require("nvchad.configs.lspconfig").defaults()
+  --     require "configs.lspconfig"
+  --   end,
+  -- },
   {
     "norcalli/nvim-colorizer.lua",
   },
