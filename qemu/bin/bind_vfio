@@ -37,6 +37,7 @@ bind_vfio () {
 
     systemctl restart display-manager.service
     chmod 0666 /dev/vfio/13
+    chmod 0666 /dev/vfio/12
 }
 
 if [ "$EUID" -ne 0 ]; then
