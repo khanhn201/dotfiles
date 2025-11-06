@@ -39,8 +39,32 @@ vim.schedule(function()
 end)
 
 
--- kitty padding
+-- Autocommands
 local autocmd = vim.api.nvim_create_autocmd
+
+-- Restore view when switching buffers
+local saved_views = {}
+local function save_win_view()
+  local win = vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_get_current_buf()
+  saved_views[win] = saved_views[win] or {}
+  saved_views[win][buf] = vim.fn.winsaveview()
+end
+
+local function restore_win_view()
+  local win = vim.api.nvim_get_current_win()
+  local buf = vim.api.nvim_get_current_buf()
+
+  if saved_views[win] and saved_views[win][buf] then
+    vim.fn.winrestview(saved_views[win][buf])
+    saved_views[win][buf] = nil
+  end
+end
+autocmd("BufLeave", { callback = save_win_view })
+autocmd("BufEnter", { callback = restore_win_view })
+
+
+-- kitty padding
 autocmd("VimEnter", {
   command = ":silent !kitty @ set-spacing padding=0 margin=0",
 })
