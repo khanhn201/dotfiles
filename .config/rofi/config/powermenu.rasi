@@ -26,7 +26,7 @@ window {
 }
 
 listview {
-    background-color:               @BG;
+    background-color:               @TRANS;
     columns:                        1;
     lines:			                3;
     spacing:                        15px;
@@ -36,14 +36,14 @@ listview {
 }
 
 mainbox {
-    background-color:               @BG;
+    background-color:               @TRANS;
     children:                       [ listview ];
     spacing:                        15px;
     padding:                        15px;
 }
 
 element {
-    background-color:               @BG;
+    background-color:               @TRANS;
     text-color:                     @FG;
     orientation:                    horizontal;
     border-radius:                  50%;
@@ -56,7 +56,7 @@ element-icon {
 }
 
 element-text {
-    background-color: 		        inherit;
+    background-color:               inherit;
     text-color:       		        inherit;
     font:			                "JetBrainsMono Nerd Font 27";
     expand:                         true;

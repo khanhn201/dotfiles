@@ -1,5 +1,5 @@
 * {
-    BG:    #1e1e2eff;
+    BG:    #1e1e2ea0;
     BGA:   #89DCEBff;
     FG:    #cdd6f4ff;
     FGA:   #f5c2e7ff;
@@ -11,4 +11,5 @@
     ON:    #a6e3a1ff;
     RED:   #F38BA8ff;
     YELLOW:   #f9e2afff;
+    TRANS:    #1e1e2e00;
 }

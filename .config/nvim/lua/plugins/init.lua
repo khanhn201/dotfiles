@@ -41,6 +41,7 @@ return {
   --       "prettier",
   --       "fortls",
   --       "typescript-language-server",
+  --       "matlab-language-server",
   --       "rust-analyzer"
   --     },
   --   },
