@@ -29,7 +29,7 @@ shotarea () {
 # Variable passed to rofi
 options="$screen\n$area\n$window"
 
-chosen="$(echo -e "$options" | $rofi_command -p 'Take A Shot' -dmenu -selected-row 0)"
+chosen="$(echo -e "$options" | $rofi_command -p '' -dmenu -selected-row 0)"
 case $chosen in
     $screen)
 		shotnow
