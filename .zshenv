@@ -23,4 +23,3 @@ export PATH=/home/nekoconn/ParaView/bin:$PATH
 export NNN_FIFO=/tmp/nnn.fifo
 # export NNN_OPENER=/home/nekoconn/.config/nnn/plugins/nuke
 # export NNN_PLUG='v:preview-tabbed'
-. "$HOME/.cargo/env"
