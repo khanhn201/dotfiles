@@ -7,70 +7,20 @@ return {
     end,
   },
   {
-    "lambdalisue/vim-suda",
-    lazy = false,
-  },
-  {
-    "vhyrro/luarocks.nvim",
-    priority = 1001, -- this plugin needs to run before anything else
-    lazy = false,
-    opts = {
-      rocks = { "magick" },
-    },
-  },
-  {
-    "3rd/image.nvim",
-    lazy = false,
-    dependencies = { "luarocks.nvim" },
+    "neovim/nvim-lspconfig",
     config = function()
-      require("image").setup {
-        backend = "kitty",
-        max_height_window_percentage = 70,
-        hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.svg" },
-      }
+      require "configs.lspconfig"
     end,
   },
-  -- {
-  --   "williamboman/mason.nvim",
-  --   opts = {
-  --     ensure_installed = {
-  --       "lua-language-server",
-  --       "stylua",
-  --       "html-lsp",
-  --       "css-lsp",
-  --       "prettier",
-  --       "fortls",
-  --       "typescript-language-server",
-  --       "matlab-language-server",
-  --       "rust-analyzer"
-  --     },
-  --   },
-  -- },
-  -- "williamboman/mason-lspconfig.nvim",
-  -- {
-  --   "neovim/nvim-lspconfig",
-  --   config = function()
-  --     require("nvchad.configs.lspconfig").defaults()
-  --     require "configs.lspconfig"
-  --   end,
-  -- },
+  { import = "nvchad.blink.lazyspec" },
   {
-    "norcalli/nvim-colorizer.lua",
-  },
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "vim",
-        "lua",
-        "vimdoc",
-        "html",
-        "css",
-        "javascript",
-        "typescript",
-        "python",
-      },
-    },
+  	"nvim-treesitter/nvim-treesitter",
+  	opts = {
+  		ensure_installed = {
+  			"vim", "lua", "vimdoc",
+       "html", "css"
+  		},
+  	},
   },
   {
     "lervag/vimtex",
@@ -85,5 +35,9 @@ return {
       vim.g.vimtex_view_method = "zathura"
       vim.g.vimtex_context_pdf_viewer = "zathura"
     end,
+  },
+  {
+    "lambdalisue/vim-suda",
+    lazy = false,
   },
 }

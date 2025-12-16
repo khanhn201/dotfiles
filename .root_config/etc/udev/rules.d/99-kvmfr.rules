@@ -1,0 +1,2 @@
+SUBSYSTEM=="kvmfr", GROUP="kvm", MODE="660"
+

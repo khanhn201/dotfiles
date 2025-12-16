@@ -4,15 +4,17 @@
 ---@type ChadrcConfig
 local M = {}
 
-M.ui = {
+M.base46 = {
 	theme = "catppuccin",
-    tabufline = {
-        lazyload = false
-    }
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
+}
+
+
+M.nvdash = { load_on_startup = true }
+M.ui = {
+     tabufline = {
+         order = { "treeOffset", "buffers", "tabs" },
+         lazyload = false
+     }
 }
 
 return M
