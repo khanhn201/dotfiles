@@ -17,6 +17,7 @@ qemu-system-x86_64 \
     -nic user,id=nic0,smb=/home/nekoconn/,model=virtio-net-pci \
     -vga none \
     -nographic \
+    -no-reboot \
     -device vfio-pci,multifunction=on,host=01:00.0 \
     -device vfio-pci,host=01:00.1 \
     -audiodev pa,id=audio0,timer-period=100 \
