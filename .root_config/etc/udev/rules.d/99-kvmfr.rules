@@ -1,2 +1,1 @@
-SUBSYSTEM=="kvmfr", GROUP="kvm", MODE="660"
-
+SUBSYSTEM=="kvmfr", OWNER="nekoconn", GROUP="kvm", MODE="0660"

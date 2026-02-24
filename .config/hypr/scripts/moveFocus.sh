@@ -4,11 +4,17 @@ direction=$1
 changeto=$2
 
 pre=$(hyprctl -j activewindow | jq -r '.address')
-hyprctl dispatch movefocus $direction
+hyprctl dispatch layoutmsg focus $direction
 post=$(hyprctl -j activewindow | jq -r '.address')
 
 if [[ $post = $pre ]]; then
-  hyprctl dispatch workspace $changeto
+  if [[ $changeto = "left" ]]; then
+    hyprctl dispatch movefocus l
+  elif [[ $changeto = "right" ]]; then
+    hyprctl dispatch movefocus r
+  else
+    hyprctl dispatch workspace $changeto
+  fi
 fi
 
 exit 0
