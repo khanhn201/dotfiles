@@ -31,5 +31,6 @@ qemu-system-x86_64 \
     -device usb-host,vendorid=0x2dc8,productid=0x3107 \
     -device usb-host,vendorid=0x2dc8,productid=0x3106 \
     -device usb-host,vendorid=0x045e,productid=0x028e \
+    -device usb-host,vendorid=0x3537,productid=0x100b \
     -acpitable file=/home/nekoconn/qemu/MSDM.bin -smbios file=/home/nekoconn/qemu/smbios.bin \
     -spice port=5900,addr=127.0.0.1,disable-ticketing=on

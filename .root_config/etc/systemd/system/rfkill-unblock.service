@@ -1,0 +1,10 @@
+[Unit]
+Description=RFKill-Unblock All Devices
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/rfkill unblock all
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
