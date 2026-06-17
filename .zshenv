@@ -11,14 +11,17 @@ export CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1
 export EDITOR="nvim"
 
 # Nek
+# export NEK_SOURCE_ROOT="/home/nekoconn/code/Nek5000-nandu"
 export NEK_SOURCE_ROOT="/home/nekoconn/code/Nek5000"
-# export NEK_SOURCE_ROOT="/home/nekoconn/code/seal/Nek5000"
+export NEK5000_PATH=$NEK_SOURCE_ROOT
 export PATH=$NEK_SOURCE_ROOT/bin:$PATH
-export NEKRS_HOME=$HOME/.local/nekrs-khanhn
+export NEKRS_HOME=$HOME/.local/nekmhd
 export PATH=$NEKRS_HOME/bin:$PATH
 export PATH=/home/nekoconn/code/seal/reframe/bin:$PATH
 export PATH=/home/nekoconn/ParaView/bin:$PATH
 
+
+export PATH=/opt/cuda/bin/:$PATH
 # nnn
 export NNN_FIFO=/tmp/nnn.fifo
 # export NNN_OPENER=/home/nekoconn/.config/nnn/plugins/nuke

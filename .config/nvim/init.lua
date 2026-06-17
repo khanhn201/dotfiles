@@ -61,11 +61,3 @@ autocmd("BufLeave", { callback = save_win_view })
 autocmd("BufEnter", { callback = restore_win_view })
 
 
--- kitty padding
-autocmd("VimEnter", {
-  command = ":silent !kitty @ set-spacing padding=0 margin=0",
-})
-
-autocmd("VimLeavePre", {
-  command = ":silent !kitty @ set-spacing padding=8 margin=8",
-})

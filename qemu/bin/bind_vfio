@@ -7,22 +7,18 @@ bind_vfio () {
     aud_vd="$(cat /sys/bus/pci/devices/$aud/vendor) $(cat /sys/bus/pci/devices/$aud/device)"
 
     systemctl stop display-manager.service
-    # modprobe -r nvidia_uvm
-    # modprobe -r nvidia_drm
-    # modprobe -r nvidia_modeset
-    # modprobe -r nvidia
+    sleep 0.5
 
     modprobe vfio_pci
+    sleep 0.5
     echo "$gpu" > "/sys/bus/pci/devices/$gpu/driver/unbind"
     echo "$aud" > "/sys/bus/pci/devices/$aud/driver/unbind"
     echo "$gpu_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
     echo "$aud_vd" > /sys/bus/pci/drivers/vfio-pci/new_id
-
-    # modprobe vfio_pci ids=10de:2d19,10de:22eb
-    # modprobe vfio_iommu_type1
-    # modprobe vfio
+    sleep 0.5
 
     systemctl restart display-manager.service
+    sleep 0.5
     chmod 0666 /dev/vfio/*
     chmod 0666 /dev/disk/by-id/*
     chmod 0666 /dev/kvmfr0

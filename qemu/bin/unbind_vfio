@@ -1,16 +1,15 @@
 unbind_vfio () {
     set -x
+    gpu="0000:01:00.0"
+    aud="0000:01:00.1"
+    gpu_vd="$(cat /sys/bus/pci/devices/$gpu/vendor) $(cat /sys/bus/pci/devices/$gpu/device)"
+    aud_vd="$(cat /sys/bus/pci/devices/$aud/vendor) $(cat /sys/bus/pci/devices/$aud/device)"
 
-    modprobe -r vfio_pci
-    modprobe -r vfio_iommu_type1
-    modprobe -r vfio
-
-
-    modprobe nvidia_uvm
-    modprobe nvidia_drm
-    modprobe nvidia_modeset
-    modprobe nvidia
-
+    echo "$gpu_vd" > "/sys/bus/pci/drivers/vfio-pci/remove_id"
+    echo "$aud_vd" > "/sys/bus/pci/drivers/vfio-pci/remove_id"
+    echo 1 > "/sys/bus/pci/devices/$gpu/remove"
+    echo 1 > "/sys/bus/pci/devices/$aud/remove"
+    echo 1 > "/sys/bus/pci/rescan"
     systemctl restart display-manager.service
 }
 
