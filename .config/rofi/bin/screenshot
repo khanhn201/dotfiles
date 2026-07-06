@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 rofi_command="rofi -theme $HOME/.config/rofi/config/screenshot.rasi"
 
-time=`date +%Y-%m-%d-%I-%M-%S`
+time=`date +%Y%m%d-%I%M%S`
 dir="/home/nekoconn/Pictures/Screenshots"
 file="${dir}/Screenshot_${time}.png"
 
@@ -13,18 +13,31 @@ geom=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size
 
 # take shots
 shotnow () {
-	# sleep 0.5 && maim -u -f png | tee "$file" | xclip -selection clipboard -t image/png
-    sleep 0.5 && grim - | tee "$file" | wl-copy --type image/png
+    hyprctl keyword cursor:invisible true
+    sleep 0.2
+    grim - | tee "$file" | wl-copy --type image/png
+    sleep 0.2
+    hyprctl keyword cursor:invisible false
 }
 
 shotwin () {
-	# maim -u -f png -i `xdotool getactivewindow` | tee "$file" | xclip -selection clipboard -t image/png
-    sleep 0.5 && grim -g "$geom" - | tee "$file" | wl-copy --type image/png
+    hyprctl keyword cursor:invisible true
+    sleep 0.2
+    grim -g "$geom" - | tee "$file" | wl-copy --type image/png
+    sleep 0.2
+    hyprctl keyword cursor:invisible false
 }
 
 shotarea () {
-	# maim -u -f png -s -b 2 -c 0.35,0.55,0.85,0.25 -l | tee "$file" | xclip -selection clipboard -t image/png
-    grim -g "$(slurp -d)" - | tee "$file" | wl-copy --type image/png
+    reg="$(slurp -d)"
+    if [ -z "$reg" ]; then
+        exit 0
+    fi
+    hyprctl keyword cursor:invisible true
+    sleep 0.2
+    grim -g "$reg" - | tee "$file" | wl-copy --type image/png
+    sleep 0.2
+    hyprctl keyword cursor:invisible false
 }
 # Variable passed to rofi
 options="$screen\n$area\n$window"
