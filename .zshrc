@@ -21,7 +21,8 @@ compinit
 # Alias
 alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
 alias vim=nvim
-alias open='xdg-open'
+alias vi=nvim
+alias o='xdg-open'
 
 export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1E1E2E,spinner:#F5E0DC,hl:#F38BA8 \
