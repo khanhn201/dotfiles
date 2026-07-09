@@ -36,6 +36,11 @@ do
 
   vim.o.scrolloff = 10
   vim.o.confirm = true
+
+  vim.o.tabstop = 4
+  vim.o.shiftwidth = 4
+  vim.o.softtabstop = 4
+  vim.o.expandtab = true
 end
 
 -- ============================================================
@@ -44,8 +49,8 @@ end
 -- ============================================================
 do
   vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
-  vim.keymap.set('n', '<C-S-kPageUp>', '<cmd>-tabmove<CR>', {desc = 'Move Buffer Right'})
-  vim.keymap.set('n', '<C-S-kPageDown>', '<cmd>+tabmove<CR>', {desc = 'Move Buffer Left'})
+  vim.keymap.set('n', '<C-S-kPageUp>', '<cmd>-tabmove<CR>', {desc = 'Move Tabpage Right'})
+  vim.keymap.set('n', '<C-S-kPageDown>', '<cmd>+tabmove<CR>', {desc = 'Move Tabpage Left'})
 end
 
 -- ============================================================
