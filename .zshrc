@@ -18,18 +18,20 @@ autoload -Uz compinit
 compinit
 # End of lines added by compinstall
 
-# Alias
-alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
-alias vim=nvim
-alias vi=nvim
-alias o='xdg-open'
-
+source <(fzf --zsh)
 export FZF_DEFAULT_OPTS=" \
 --color=bg+:#313244,bg:#1E1E2E,spinner:#F5E0DC,hl:#F38BA8 \
 --color=fg:#CDD6F4,header:#F38BA8,info:#CBA6F7,pointer:#F5E0DC \
 --color=marker:#B4BEFE,fg+:#CDD6F4,prompt:#CBA6F7,hl+:#F38BA8 \
 --color=selected-bg:#45475A \
 --color=border:#6C7086,label:#CDD6F4"
+
+# Alias
+alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'
+alias vim=nvim
+alias vi=nvim
+alias o='xdg-open'
+
 
 # nnn
 BLK="03" CHR="03" DIR="04" EXE="02" REG="07" HARDLINK="05" SYMLINK="05" MISSING="08" ORPHAN="01" FIFO="06" SOCK="03" UNKNOWN="01"
@@ -54,10 +56,15 @@ nnn ()
     }
 }
 
-open_vpn()
-{
-    sudo openconnect --authgroup=openconnect1 --verbose vpn.illinois.edu
+open_vpn() {
+    eval "$(openconnect --authgroup=openconnect1 --authenticate vpn.illinois.edu)" &&
+    echo "$COOKIE" | sudo openconnect \
+        --cookie-on-stdin \
+        --servercert "$FINGERPRINT" \
+        --script "vpn-slice monza.cs.illinois.edu spa.cs.illinois.edu enzo.cs.illinois.edu" \
+        "$CONNECT_URL"
 }
+
 venv()
 {
     source ~/python_venv/$1/bin/activate

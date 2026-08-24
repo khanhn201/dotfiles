@@ -1,44 +1,36 @@
 pragma Singleton
 import Quickshell
 import Quickshell.Services.UPower
-import QtQuick
-
 
 Singleton {
     readonly property var battery: UPower.displayDevice
-    readonly property real percentage: battery?.percentage ?? 0.0
+    readonly property real percentage: battery?.percentage ?? 0
+    readonly property bool charging: battery?.state === UPowerDeviceState.Charging
+        || battery?.state === UPowerDeviceState.PendingCharge
+        || battery?.state === UPowerDeviceState.FullyCharged
+    readonly property bool low: percentage < 0.2 && battery?.state === UPowerDeviceState.Discharging
 
+    // Empty -> full in 8 steps (Material Symbols' battery_N_bar family tops
+    // out at 6, plus battery_full for the last step).
+    readonly property var dischargingIcons: [
+        "battery_0", "battery_1", "battery_2", "battery_3",
+        "battery_4", "battery_5", "battery_6", "battery_full"
+    ]
+
+    // Material Symbols' charging glyphs are a fixed, unevenly-spaced set
+    // (20/30/50/60/80/90/full) rather than a clean ramp, so this buckets by
+    // threshold instead of indexing an array.
     readonly property string icon: {
-        let p = percentage;
-        let state = battery?.state;
-
-        // Charging / plugged in
-        if (state === UPowerDeviceState.Charging ||
-            state === UPowerDeviceState.PendingCharge) {
-            if (p >= 0.95) return "󰂅";
-            if (p >= 0.90) return "󰂋";
-            if (p >= 0.80) return "󰂊";
-            if (p >= 0.70) return "󰢞";
-            if (p >= 0.60) return "󰂉";
-            if (p >= 0.50) return "󰢝";
-            if (p >= 0.40) return "󰂈";
-            if (p >= 0.30) return "󰂇";
-            if (p >= 0.20) return "󰂆";
-            return "󰢜";
+        if (!charging) {
+            const idx = percentage >= 0.95 ? 7 : Math.floor(percentage * 7);
+            return dischargingIcons[idx];
         }
-        if (state === UPowerDeviceState.FullyCharged)
-            return "󰂅";
-
-        // Discharging
-        if (p >= 0.95) return "󰁹";
-        if (p >= 0.90) return "󰂂";
-        if (p >= 0.80) return "󰂁";
-        if (p >= 0.70) return "󰂀";
-        if (p >= 0.60) return "󰁿";
-        if (p >= 0.50) return "󰁾";
-        if (p >= 0.40) return "󰁽";
-        if (p >= 0.30) return "󰁼";
-        if (p >= 0.20) return "󰁻";
-        return "󰁺";
+        if (percentage < 0.25) return "battery_charging_20";
+        if (percentage < 0.40) return "battery_charging_30";
+        if (percentage < 0.55) return "battery_charging_50";
+        if (percentage < 0.70) return "battery_charging_60";
+        if (percentage < 0.85) return "battery_charging_80";
+        if (percentage < 0.95) return "battery_charging_90";
+        return "battery_charging_full";
     }
 }

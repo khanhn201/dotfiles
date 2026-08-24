@@ -1,23 +1,17 @@
 pragma Singleton
 import Quickshell
 import Quickshell.Io
-import Quickshell.Networking
 import QtQuick
 
 Singleton {
     property int percentage: 0
 
-    readonly property var icons: [
-        "", "", "", "", "",
-        "", "", "", "", "",
-        "", "", "", "", ""
-    ]
+    // Material Symbols has no graduated brightness-sun ramp (its brightness_N
+    // glyphs are unrelated circle icons), so this reads the same way Cpu and
+    // Memory do: one static glyph, the number carries the value.
+    readonly property string icon: "brightness"
 
-    readonly property string icon: {
-        const idx = Math.floor(percentage / 100 * icons.length);
-        return icons[idx];
-    }
-
+    // No native Quickshell API for backlight, so poll brightnessctl.
     Process {
         id: brightnessctl
         command: ["brightnessctl", "-m"]
@@ -33,7 +27,7 @@ Singleton {
     }
 
     Timer {
-        interval: 100
+        interval: 200
         running: true
         repeat: true
         onTriggered: brightnessctl.running = true

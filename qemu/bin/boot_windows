@@ -6,7 +6,7 @@ qemu-system-x86_64 \
     -global kvm-pit.lost_tick_policy=discard \
     -cpu host,topoext,kvm=off,hv_relaxed,hv_spinlocks=0x1fff,hv_vapic,hv_time \
     -smp sockets=1,cores=6,threads=2 \
-    -m 20G \
+    -m 16G \
     -mem-prealloc \
     -rtc base=utc,clock=host,driftfix=slew \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd \

@@ -3,57 +3,142 @@ pragma Singleton
 import Quickshell
 import QtQuick
 
+import "./services"
+
 Singleton {
     id: theme
 
-    property int barWidth: 60
-    property int gap: 4
+    // The one dial that resizes the whole bar: the clock and date tiles are
+    // set at this size, and everything else -- the rail's thickness, the
+    // icon-rail well, barWidth itself -- is measured or derived from what
+    // that renders as, not set independently. Turn this one knob to scale
+    // the sidebar up or down as a unit.
+    property int mainFontSize: 32
+
+    // The clock and date tiles are transparent -- no pill of their own -- so
+    // their true visible width is just their digits, not whatever column
+    // they happen to lay out in. Measured live via TextMetrics rather than a
+    // pixel-measured literal, so it tracks mainFontSize/fontFamily instead of
+    // silently drifting out of sync when either changes.
+    TextMetrics {
+        id: clockDigitsMetrics
+        font.family: theme.fontFamily
+        font.pixelSize: theme.mainFontSize
+        text: "00"
+    }
+    readonly property int railThickness: Math.ceil(clockDigitsMetrics.width)
+
+    // Space *between* sibling components in the bar (workspace rail, media
+    // pill, each indicator).
+    property int gap: 10
+    // Space between a frame's own edge and the content inside it -- the media
+    // pill, the date tile, the dot rail's own well. Deliberately larger than
+    // gap: content should never sit flush against a rounded shape's own
+    // boundary, which gap alone was too thin to prevent.
+    property int framePadding: 10
+    // Wide enough to hold the clock/date/rail column plus its own padding on
+    // each side, and not a separate number that has to be kept in sync with
+    // them by hand.
+    readonly property int barWidth: railThickness + 2 * framePadding
     property int cornerRadius: 15
+    property int frameThickness: 10
 
-    // ── Core M3 seed colors (Catppuccin Mocha) ──
-    property color colorPrimary: "#89b4fa"              // Blue
-    property color colorOnPrimary: "#11111b"            // Crust
-    property color colorPrimaryContainer: "#45475a"     // Surface1
-    property color colorOnPrimaryContainer: "#89b4fa"   // Blue
+    // Dot-rail metrics, shared by the workspace slider and the column
+    // indicator so the two instruments stay identical. The top strip has to
+    // be thick enough to hold a horizontal rail, so it derives its own
+    // thickness. The dot is sized down to fit railThickness with real gutter
+    // around it, rather than the well being stretched out to the dot.
+    // Rounded down to an even number: DotRail's half-cut dot is built from a
+    // flat rectangle stacked on a clipped circle, and an odd width puts the
+    // circle's own centre on a half-pixel -- Qt rounds that differently for
+    // the curve than for the flat rectangle's edge, so the two pieces come
+    // out with centres 0.5px apart. Barely visible as a systemic offset, but
+    // very visible as a seam exactly where the flat top meets the curve.
+    property int railDotActive: Math.floor((railThickness - 4) / 2) * 2
+    property int railIcon: railDotActive*0.9
+    property int railDotIdle: 14
+    property int railDotSpacing: 10
+    readonly property int railGutter: (railThickness - railDotActive) / 2
+    // How far the well and each dot run straight before curving into their
+    // half-cut bottom, instead of the curve starting right at the flat top.
+    property int railHalfCutExtension: 6
+    // DotRail's halfCut mode draws the well as its own bottom half only --
+    // a real flat top edge, a straight run, then a semicircular bottom --
+    // so this only needs to fit that (plus the straight extension, sized off
+    // the well's own radius) and a single framePadding below it, not a full
+    // thickness plus padding on both sides.
+    readonly property int frameThicknessTop: Math.round((railThickness / 2) + railHalfCutExtension) + framePadding
 
-    property color colorSecondary: "#cba6f7"            // Mauve
-    property color colorOnSecondary: "#11111b"          // Crust
-    property color colorSecondaryContainer: "#45475a"   // Surface1
-    property color colorOnSecondaryContainer: "#cba6f7" // Mauve
+    // ── Colour ──
+    // Every role below is derived from the wallpaper by
+    // hypr/scripts/m3-from-wallpaper.py and lives in the generated Colors.qml,
+    // which Hyprland and hyprlock read from too (as colors.lua / colors.conf),
+    // so the whole desktop moves together. Re-run that script after changing
+    // the wallpaper. Nothing here should be a literal.
+    //
+    // Which of Colors.qml's two schemes is live: ThemeMode.isDark is a plain
+    // mutable property (unlike everything Colors.qml itself exposes, which is
+    // regenerated wholesale and read-only), so toggling it here cascades
+    // through every colorXxx property below and every component bound to one,
+    // in the same frame -- no file write, no restart.
+    readonly property var scheme: ThemeMode.isDark ? Colors.m3Dark : Colors.m3Light
 
-    property color colorTertiary: "#f5c2e7"             // Pink
-    property color colorOnTertiary: "#11111b"           // Crust
-    property color colorTertiaryContainer: "#45475a"    // Surface1
-    property color colorOnTertiaryContainer: "#f5c2e7"  // Pink
+    readonly property color colorPrimary: scheme.primary
+    readonly property color colorOnPrimary: scheme.onPrimary
+    readonly property color colorPrimaryContainer: scheme.primaryContainer
+    readonly property color colorOnPrimaryContainer: scheme.onPrimaryContainer
 
-    property color colorError: "#f38ba8"                // Red
-    property color colorOnError: "#11111b"              // Crust
-    property color colorErrorContainer: "#45475a"       // Surface1
-    property color colorOnErrorContainer: "#f38ba8"     // Red
+    readonly property color colorSecondary: scheme.secondary
+    readonly property color colorOnSecondary: scheme.onSecondary
+    readonly property color colorSecondaryContainer: scheme.secondaryContainer
+    readonly property color colorOnSecondaryContainer: scheme.onSecondaryContainer
 
-    // ── Neutral / surface roles ──
-    property color colorSurface: "#1e1e2e"              // Base
-    property color colorSurfaceBright: "#585b70"        // Surface2
-    property color colorSurfaceDim: "#11111b"           // Crust
-    property color colorOnSurface: "#cdd6f4"            // Text
-    property color colorSurfaceVariant: "#313244"       // Surface0
-    property color colorOnSurfaceVariant: "#a6adc8"     // Subtext0
+    readonly property color colorTertiary: scheme.tertiary
+    readonly property color colorOnTertiary: scheme.onTertiary
+    readonly property color colorTertiaryContainer: scheme.tertiaryContainer
+    readonly property color colorOnTertiaryContainer: scheme.onTertiaryContainer
 
-    property color colorSurfaceContainerLowest: "#11111b"   // Crust
-    property color colorSurfaceContainerLow: "#181825"      // Mantle
-    property color colorSurfaceContainer: "#1e1e2e"          // Base
-    property color colorSurfaceContainerHigh: "#313244"      // Surface0
-    property color colorSurfaceContainerHighest: "#45475a"   // Surface1
+    readonly property color colorError: scheme.error
+    readonly property color colorOnError: scheme.onError
+    readonly property color colorErrorContainer: scheme.errorContainer
+    readonly property color colorOnErrorContainer: scheme.onErrorContainer
 
-    property color colorOutline: "#6c7086"              // Overlay0
-    property color colorOutlineVariant: "#585b70"       // Surface2
+    readonly property color colorSurface: scheme.surface
+    readonly property color colorSurfaceBright: scheme.surfaceBright
+    readonly property color colorSurfaceDim: scheme.surfaceDim
+    readonly property color colorOnSurface: scheme.onSurface
+    readonly property color colorSurfaceVariant: scheme.surfaceVariant
+    readonly property color colorOnSurfaceVariant: scheme.onSurfaceVariant
 
-    property color colorShadow: "#11111b"               // Crust
-    property color colorScrim: "#11111b"                // Crust
+    readonly property color colorSurfaceContainerLowest: scheme.surfaceContainerLowest
+    readonly property color colorSurfaceContainerLow: scheme.surfaceContainerLow
+    readonly property color colorSurfaceContainer: scheme.surfaceContainer
+    readonly property color colorSurfaceContainerHigh: scheme.surfaceContainerHigh
+    readonly property color colorSurfaceContainerHighest: scheme.surfaceContainerHighest
 
-    property color colorInverseSurface: "#cdd6f4"       // Text
-    property color colorInverseOnSurface: "#1e1e2e"     // Base
-    property color colorInversePrimary: "#74c7ec"       // Sapphire (reads well on light inverse surface)
+    readonly property color colorOutline: scheme.outline
+    readonly property color colorOutlineVariant: scheme.outlineVariant
+
+    readonly property color colorShadow: scheme.shadow
+    readonly property color colorScrim: scheme.scrim
+
+    readonly property color colorInverseSurface: scheme.inverseSurface
+    readonly property color colorInverseOnSurface: scheme.inverseOnSurface
+    readonly property color colorInversePrimary: scheme.inversePrimary
+
+    // The bar, the three edge strips and the four corners are one continuous
+    // frame around the screen, so they all read this single token rather than
+    // each naming a role. Google's own NavigationRail -- the closest real M3
+    // component to this bar -- uses plain `surface` for exactly this, and
+    // reserves `secondary` for the small active-item indicator only; painting
+    // the whole frame in an accent colour was fighting the spec. Retint by
+    // changing this one line.
+    readonly property color colorFrame: colorSurfaceContainerHighest
+    // Paired text/icon colour for anything sitting directly on colorFrame with
+    // no pill of its own behind it (the CPU/volume/clock readouts, in their
+    // resting state -- they are data, not buttons, so they get no separate
+    // background). Keep this in sync with colorFrame above.
+    readonly property color colorOnFrame: colorOnSurface
 
     // ── Shape scale ──
     property int radiusNone: 0
@@ -90,4 +175,38 @@ Singleton {
     property int durationMedium: 250
     property int durationLong: 400
     property int easingStandard: Easing.InOutCubic
+
+    // ── Elevation ──
+    property int shadowSpread: 20
+    property real shadowBlur: 0.6
+    property real shadowOpacity: 0.35
+
+    // ── Tone pairs (M3 color role -> [background, content]) ──
+    readonly property var tonePairs: ({
+        surface: [colorSurface, colorOnSurface],
+        surfaceVariant: [colorSurfaceVariant, colorOnSurfaceVariant],
+        surfaceDim: [colorSurfaceDim, colorOnSurface],
+        surfaceBright: [colorSurfaceBright, colorOnSurface],
+        surfaceContainerLowest: [colorSurfaceContainerLowest, colorOnSurface],
+        surfaceContainerLow: [colorSurfaceContainerLow, colorOnSurface],
+        surfaceContainer: [colorSurfaceContainer, colorOnSurface],
+        surfaceContainerHigh: [colorSurfaceContainerHigh, colorOnSurfaceVariant],
+        surfaceContainerHighest: [colorSurfaceContainerHighest, colorOnSurface],
+        primary: [colorPrimary, colorOnPrimary],
+        primaryContainer: [colorPrimaryContainer, colorOnPrimaryContainer],
+        secondary: [colorSecondary, colorOnSecondary],
+        secondaryContainer: [colorSecondaryContainer, colorOnSecondaryContainer],
+        tertiary: [colorTertiary, colorOnTertiary],
+        tertiaryContainer: [colorTertiaryContainer, colorOnTertiaryContainer],
+        error: [colorError, colorOnError],
+        errorContainer: [colorErrorContainer, colorOnErrorContainer]
+    })
+
+    function toneColor(tone: string): color {
+        return (tonePairs[tone] ?? tonePairs.surfaceContainerHigh)[0];
+    }
+
+    function toneOnColor(tone: string): color {
+        return (tonePairs[tone] ?? tonePairs.surfaceContainerHigh)[1];
+    }
 }

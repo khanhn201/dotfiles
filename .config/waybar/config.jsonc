@@ -24,6 +24,11 @@
         "clock#time"
     ],
     "hyprland/workspaces": {
+        // Workspaces are renamed to their position within their monitor's strip
+        // by hyprland.lua, so show the name rather than the raw global id.
+        "format": "{name}",
+        "sort-by": "id",
+        "all-outputs": false
     },
     "mpris": {
         "format": "{status_icon} {title} - {artist}",

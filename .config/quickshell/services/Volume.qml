@@ -1,40 +1,20 @@
 pragma Singleton
-
 import Quickshell
-import Quickshell.Io
-import QtQuick
+import Quickshell.Services.Pipewire
 
 Singleton {
-    property int percentage: 0
-    property bool muted: false
+    readonly property PwNode sink: Pipewire.defaultAudioSink
+
+    readonly property int percentage: Math.round((sink?.audio?.volume ?? 0) * 100)
+    readonly property bool muted: sink?.audio?.muted ?? false
 
     readonly property string icon: {
-        if (muted) return "󰝟"
-        if (percentage >= 67) return ""
-        if (percentage >= 34) return ""
-        return ""
+        if (muted) return "volume_muted"
+        if (percentage >= 67) return "volume_high"
+        if (percentage >= 34) return "volume_medium"
+        return "volume_low"
     }
 
-    Process {
-        id: wpctl
-        command: ["wpctl", "get-volume", "@DEFAULT_SINK@"]
-        running: true
-
-        stdout: SplitParser {
-            onRead: line => {
-                const m = line.match(/Volume:\s*([0-9.]+)/);
-                if (m)
-                    percentage = Math.round(parseFloat(m[1]) * 100);
-
-                muted = line.includes("[MUTED]");
-            }
-        }
-    }
-
-    Timer {
-        interval: 100
-        running: true
-        repeat: true
-        onTriggered: wpctl.running = true
-    }
+    // Pipewire nodes only stream their properties while bound to a tracker.
+    PwObjectTracker { objects: sink ? [sink] : [] }
 }

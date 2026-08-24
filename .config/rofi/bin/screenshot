@@ -14,17 +14,17 @@ geom=$(hyprctl activewindow -j | jq -r '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size
 # take shots
 shotnow () {
     hyprctl keyword cursor:invisible true
-    sleep 0.2
+    sleep 0.1
     grim - | tee "$file" | wl-copy --type image/png
-    sleep 0.2
+    sleep 0.1
     hyprctl keyword cursor:invisible false
 }
 
 shotwin () {
     hyprctl keyword cursor:invisible true
-    sleep 0.2
+    sleep 0.1
     grim -g "$geom" - | tee "$file" | wl-copy --type image/png
-    sleep 0.2
+    sleep 0.1
     hyprctl keyword cursor:invisible false
 }
 
@@ -34,9 +34,9 @@ shotarea () {
         exit 0
     fi
     hyprctl keyword cursor:invisible true
-    sleep 0.2
+    sleep 0.1
     grim -g "$reg" - | tee "$file" | wl-copy --type image/png
-    sleep 0.2
+    sleep 0.1
     hyprctl keyword cursor:invisible false
 }
 # Variable passed to rofi
