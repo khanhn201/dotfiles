@@ -3,7 +3,7 @@ Description=Silent Sound Service
 After=sound.target
 
 [Service]
-ExecStart=/usr/bin/ffplay -f lavfi -i -i "sine=frequency=1000,volume=-60dB" -nodisp -loglevel quiet
+ExecStart=/usr/bin/ffplay -f lavfi -i -i "sine=frequency=1000,volume=-80dB" -nodisp -loglevel quiet
 Restart=always
 
 [Install]
