@@ -1,7 +1,7 @@
-// Everything the shell puts on one screen: the bar on the left edge (full
-// height), the top bar carrying the column indicator, thin strips extending
-// the frame colour along the remaining edges, and rounded cutouts over each
-// screen corner.
+// Everything the shell puts on one screen: the desktop background, the bar
+// on the left edge (full height), the top bar carrying the column
+// indicator, thin strips extending the frame colour along the remaining
+// edges, and rounded cutouts over each screen corner.
 import Quickshell
 
 Scope {
@@ -9,6 +9,7 @@ Scope {
 
     required property ShellScreen modelData
 
+    Wallpaper { screen: root.modelData }
     Bar { screen: root.modelData }
     TopBar { screen: root.modelData }
     EdgeStrip { screen: root.modelData; edge: "right" }

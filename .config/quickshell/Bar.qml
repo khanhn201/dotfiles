@@ -16,44 +16,66 @@ PanelWindow {
     color: Theme.colorFrame
     implicitWidth: Theme.barWidth
 
-    // An indicator pill with fixed-width icon and value cells, so the two
-    // columns stay aligned across every module in the bar.
-    component Indicator: StyledRectangle {
+    // Icon alone, no value column -- for a glyph that already says what it
+    // means (the keyboard-layout family), a code letter next to it is just
+    // saying the same thing twice.
+    component IconOnlyIndicator: StyledRectangle {
+        id: pill
+
+        property alias icon: iconGlyph.name
+
+        Layout.fillWidth: true
+        implicitHeight: 30
+        radius: height / 2
+
+        SvgIcon {
+            id: iconGlyph
+            anchors.centerIn: parent
+            width: Theme.railIcon
+            height: Theme.railIcon
+            color: pill.contentColor
+        }
+    }
+
+    // Value above the icon rather than beside it -- CPU/memory/battery all
+    // read as a small instrument this way, one glance top-to-bottom, rather
+    // than a row that only worked when the icon was small enough to leave
+    // room for a value column beside it.
+    component StackedIndicator: StyledRectangle {
         id: pill
 
         property alias icon: iconGlyph.name
         property alias value: valueLabel.text
+        // Battery only: the upright phone-battery glyph (every fill level,
+        // plus the dedicated charging-bolt glyphs the horizontal battery
+        // family doesn't have) rotated 90deg clockwise reads as a
+        // horizontal battery instead -- a plain visual transform, not a
+        // different icon family, so nothing about which glyph gets picked
+        // has to change.
+        property real iconRotation: 0
 
         Layout.fillWidth: true
-        implicitHeight: 30
-        // Small standalone chips read M3's shape scale as "fully rounded"
-        // for exactly this reason: at any partial radius, a fixed pill
-        // height leaves too little straight edge for the corner curve not to
-        // crowd the label sitting inside it. Rounding to a full stadium side-
-        // steps the padding-vs-radius arithmetic entirely -- the curve only
-        // ever eats into the corners, never the flat run down the middle
-        // where the centered label actually sits.
+        implicitHeight: 46
         radius: height / 2
 
-        Row {
+        Column {
             anchors.centerIn: parent
-            spacing: Theme.gap
-
-            SvgIcon {
-                id: iconGlyph
-                width: 18
-                height: 18
-                color: pill.contentColor
-                anchors.verticalCenter: parent.verticalCenter
-            }
+            spacing: 2
 
             StyledText {
                 id: valueLabel
-                width: 28
+                anchors.horizontalCenter: parent.horizontalCenter
                 variant: "labelLarge"
                 color: pill.contentColor
-                horizontalAlignment: Text.AlignRight
-                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            SvgIcon {
+                id: iconGlyph
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: Theme.railIcon
+                height: Theme.railIcon
+                rotation: pill.iconRotation
+                color: pill.contentColor
             }
         }
     }
@@ -68,9 +90,9 @@ PanelWindow {
         id: iconRail
 
         property alias topIcon: topGlyph.name
-        property color topColor: Theme.colorOnSurfaceVariant
+        property color topColor: Theme.colorOnRail
         property alias bottomIcon: bottomGlyph.name
-        property color bottomColor: Theme.colorOnSurfaceVariant
+        property color bottomColor: Theme.colorOnRail
 
         readonly property int gutter: Theme.railGutter
         readonly property int cell: Theme.railIcon
@@ -87,7 +109,7 @@ PanelWindow {
             width: iconRail.implicitWidth
             height: iconRail.implicitHeight
             radius: iconRail.thickness / 2
-            color: Theme.colorSurfaceContainer
+            color: Theme.colorRail
 
             Column {
                 anchors.centerIn: parent
@@ -157,7 +179,7 @@ PanelWindow {
 
         MediaPill {
             Layout.fillWidth: true
-            Layout.preferredHeight: 210
+            Layout.preferredHeight: Theme.mediaPillHeight
         }
 
         Item { Layout.fillHeight: true }
@@ -170,7 +192,7 @@ PanelWindow {
             Layout.fillWidth: true
             spacing: Theme.gap * 2
 
-            Indicator {
+            StackedIndicator {
                 tone: "surfaceContainerHighest"
                 color: "transparent"
                 contentColor: Theme.colorOnFrame
@@ -178,7 +200,7 @@ PanelWindow {
                 value: Cpu.percentage
             }
 
-            Indicator {
+            StackedIndicator {
                 tone: "surfaceContainerHighest"
                 color: "transparent"
                 contentColor: Theme.colorOnFrame
@@ -186,42 +208,30 @@ PanelWindow {
                 value: Memory.percentage
             }
 
-            Indicator {
+            IconOnlyIndicator {
                 tone: "surfaceContainerHighest"
                 color: "transparent"
                 contentColor: Theme.colorOnFrame
                 icon: Keyboard.icon
-                value: Keyboard.layout
             }
 
-            Indicator {
-                tone: Volume.muted ? "primary" : "surfaceContainerHighest"
-                color: Volume.muted ? Theme.toneColor(tone) : "transparent"
-                contentColor: Volume.muted ? Theme.toneOnColor(tone) : Theme.colorOnFrame
-                icon: Volume.icon
-                value: Volume.percentage
-            }
-
-            Indicator {
-                tone: "surfaceContainerHighest"
-                color: "transparent"
-                contentColor: Theme.colorOnFrame
-                icon: Brightness.icon
-                value: Brightness.percentage
-            }
-
-            Indicator {
+            StackedIndicator {
                 tone: Battery.low ? "error" : "surfaceContainerHighest"
                 color: Battery.low ? Theme.toneColor(tone) : "transparent"
                 contentColor: Battery.low ? Theme.toneOnColor(tone) : Theme.colorOnFrame
                 icon: Battery.icon
                 value: Math.round(Battery.percentage * 100)
+                iconRotation: 90
             }
         }
         IconRail {
             topIcon: Bluetooth.icon
             bottomIcon: Network.icon
-            bottomColor: Network.connected ? Theme.colorOnFrame : Theme.colorError
+            // Connected reads as the same inactive-dot colour bluetooth
+            // already gets from topColor's own default -- Theme.colorOnFrame
+            // was never actually the rail's own pairing, just what this
+            // happened to be set to.
+            bottomColor: Network.connected ? Theme.colorOnRail : Theme.colorError
         }
 
         // Date as a calendar tile. The day number is set at the clock's size,

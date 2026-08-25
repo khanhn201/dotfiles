@@ -11,7 +11,7 @@ Singleton {
     // "" | "launcher" | "power" | "screenshot" | "commands" | "wallpaperPicker"
     property string mode: ""
 
-    readonly property string scripts: Quickshell.env("HOME") + "/.config/hypr/scripts"
+    readonly property string scripts: Quickshell.env("HOME") + "/.config/quickshell/scripts"
 
     function toggle(which: string) {
         root.mode = (root.mode === which) ? "" : which;
@@ -30,9 +30,11 @@ Singleton {
             root.close();
     }
 
-    // Same actions, icons and order the rofi powermenu had.
+    // Same actions, icons and order the rofi powermenu had. Lock goes
+    // through Session rather than an exec -- LockScreen.qml is our own lock
+    // now, not a separate hyprlock process to spawn.
     readonly property var power: [
-        { icon: "󰌾", label: "Lock",     exec: ["hyprlock"] },
+        { icon: "󰌾", label: "Lock",     action: () => { root.close(); Session.lockRequested(); } },
         { icon: "󰜉", label: "Reboot",   exec: ["systemctl", "reboot"] },
         { icon: "󰐥", label: "Shutdown", exec: ["systemctl", "poweroff"] }
     ]
@@ -95,13 +97,31 @@ Singleton {
         Quickshell.execDetached(cmd);
     }
 
+    // Single-quotes each argument, escaping any embedded ' -- the standard
+    // "close, escape, reopen" trick, since single quotes admit no escape
+    // sequences of their own.
+    function shellQuote(args: var): string {
+        return args.map(a => "'" + String(a).replace(/'/g, "'\\''") + "'").join(" ");
+    }
+
+    // A window-opening launch has to go through Hyprland's own exec, not
+    // Quickshell.execDetached: only Hyprland's executor stamps the spawned
+    // process with HL_INITIAL_WORKSPACE_TOKEN, which is what lets the
+    // window land on the workspace it was launched *from* once it actually
+    // maps -- which can be well after this call returns, and well after
+    // whatever was the active workspace at that moment. Skip that token and
+    // Hyprland falls back to "wherever's active when the window shows up",
+    // which for anything slow to start is a coin flip -- most often
+    // whichever workspace happens to be active by then, workspace 1 if nothing
+    // else has changed it. hyprctl itself, not a script -- same as the
+    // hyprctl reload calls elsewhere in this shell.
     function launch(entry: var) {
         root.close();
         // Terminal entries carry a bare command; give them one, as rofi did.
-        if (entry.runInTerminal)
-            Quickshell.execDetached(["kitty", "-e"].concat(entry.command));
-        else
-            Quickshell.execDetached(entry.command);
+        const argv = entry.runInTerminal ? ["kitty", "-e"].concat(entry.command) : entry.command;
+        const shellCmd = root.shellQuote(argv);
+        const luaExpr = 'hl.dsp.exec_cmd("' + shellCmd.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '")';
+        Quickshell.execDetached(["hyprctl", "dispatch", luaExpr]);
     }
 
     function runCommand(entry: var) {

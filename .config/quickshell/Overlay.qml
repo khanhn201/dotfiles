@@ -30,6 +30,14 @@ PanelWindow {
         return null;
     }
 
+    // A fullscreen window still renders the bottom edge strip above it, but
+    // covers the space it's reserved, so it ends up hidden behind it in
+    // practice. The sheet's own corner wedges are normally inset to share
+    // the strip's last few pixels with it; with nothing there to share,
+    // that inset just leaves a gap between the wedge and the true edge.
+    // Same fix as ScreenCorner and LevelIndicator's own wedges.
+    readonly property bool fullscreen: Hyprland.focusedMonitor?.activeWorkspace?.hasFullscreen ?? false
+
     // Menus.mode flipping to "" starts the close animation; the window
     // itself has to stay mapped and click-through-blocking until the sheet
     // has actually finished sliding down, or it would just vanish mid-slide.
@@ -70,10 +78,14 @@ PanelWindow {
         const item = root.items[root.selected];
         if (root.isLauncher)
             Menus.launch(item);
-        else if (Menus.mode === "commands")
-            Menus.runCommand(item);
         else if (Menus.mode === "wallpaperPicker")
             Menus.pickWallpaper(item);
+        // An entry either runs its own action (commands, and now power's
+        // Lock) or spawns a fixed exec (power's Reboot/Shutdown, screenshot)
+        // -- which one an entry carries, not which menu it's in, decides
+        // how it activates.
+        else if (item.action)
+            Menus.runCommand(item);
         else
             Menus.run(item.exec);
     }
@@ -94,24 +106,34 @@ PanelWindow {
         // sheet, just one that lives on the bottom edge instead of the
         // middle of the screen.
         anchors.horizontalCenter: parent.horizontalCenter
+        // Anchored to the bottom at its natural resting spot, not positioned
+        // by a y computed from parent.height -- that made the open/closed
+        // targets scale with whichever monitor's screen height happened to
+        // be current, so a monitor swap between one open and the next left
+        // the Behavior animating from a stale y left over from the other
+        // screen's height instead of from fully offscreen, which is what
+        // read as "drops in from the middle" rather than a clean slide from
+        // the bottom. The transform below moves it by a fixed distance (its
+        // own height) instead, which is the same number on every screen.
+        anchors.bottom: parent.bottom
         width: 520
         // A fixed height, not one reactive to the current menu's content:
         // letting layout.implicitHeight (which jumps around as the model,
         // and therefore contentHeight, changes) drive height meant every
-        // height change also nudged this y binding, and Behavior on y
-        // animated those nudges too -- so on top of the real open/close
-        // slide, a mode with a different item count could add a second,
-        // unrelated slide partway through. Pinning height stops that
-        // second motion from ever existing; the list scrolls internally
-        // instead.
+        // height change also nudged the old y binding, animating that nudge
+        // too -- so on top of the real open/close slide, a mode with a
+        // different item count could add a second, unrelated slide partway
+        // through. Pinning height stops that second motion from ever
+        // existing; the list scrolls internally instead.
         height: 460
-        // Off the bottom edge when closed, flush with it when open -- a
-        // sheet pulled up from the edge it lives on, not a dialog floating
-        // in the middle of the screen.
-        y: root.wantOpen ? parent.height - height : parent.height
 
-        Behavior on y {
-            NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
+        // Off the bottom edge when closed, flush with it when open.
+        transform: Translate {
+            y: root.wantOpen ? 0 : card.height
+
+            Behavior on y {
+                NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
+            }
         }
 
         // Frame-coloured, not a surface tone -- continuous with the bottom
@@ -250,16 +272,18 @@ PanelWindow {
                         // Launcher entries carry a themed icon name; power
                         // and screenshot entries carry a glyph; wallpaper
                         // entries carry an actual thumbnail read off disk.
+                        // Theme.railIcon, not a literal -- same size as
+                        // every icon in the bar, wifi/bluetooth included.
                         Item {
-                            Layout.preferredWidth: root.isWallpaperPicker ? 76 : 24
-                            Layout.preferredHeight: root.isWallpaperPicker ? 44 : 24
+                            Layout.preferredWidth: root.isWallpaperPicker ? 76 : Theme.railIcon
+                            Layout.preferredHeight: root.isWallpaperPicker ? 44 : Theme.railIcon
 
                             Image {
                                 id: appIcon
                                 anchors.fill: parent
                                 fillMode: Image.PreserveAspectCrop
-                                sourceSize.width: root.isWallpaperPicker ? 152 : 24
-                                sourceSize.height: root.isWallpaperPicker ? 88 : 24
+                                sourceSize.width: root.isWallpaperPicker ? 152 : Theme.railIcon
+                                sourceSize.height: root.isWallpaperPicker ? 88 : Theme.railIcon
                                 visible: status === Image.Ready
                                 source: {
                                     if (root.isWallpaperPicker)
@@ -286,11 +310,15 @@ PanelWindow {
 
                             // Whatever the row needs when there is no image: the
                             // menu entry's glyph, or a generic one for an app
-                            // with no themed icon.
+                            // with no themed icon. font.pixelSize overrides
+                            // variant's own binding -- these are glyphs
+                            // standing in for icons, so they're sized like
+                            // one (Theme.railIcon), not like the row's text.
                             StyledText {
                                 anchors.centerIn: parent
                                 visible: !appIcon.visible && !root.isWallpaperPicker
                                 variant: "titleMedium"
+                                font.pixelSize: Theme.railIcon
                                 color: row.current ? Theme.colorOnPrimary : Theme.colorOnSurface
                                 text: root.isLauncher ? "󰣆" : row.modelData.icon
                             }
@@ -319,26 +347,71 @@ PanelWindow {
     }
 
     // Rounds the seam where the sheet's straight left/right edges cross the
-    // bottom edge strip's top edge, mid-strip -- same trick as ScreenCorner's
-    // own four wedges, just at the two points where this sheet happens to
-    // interrupt the strip instead of at a true screen corner. Siblings of
-    // card, not children of it, so their x/y stay in root's own coordinate
-    // space instead of getting dragged along by card's animated y. Bound to
-    // card.y directly rather than wantOpen, so they appear and disappear
-    // exactly when the sheet actually crosses the strip's line, not a beat
-    // early or late relative to the slide.
-    CornerWedge {
-        corner: "bottomRight"
-        x: card.x - size
-        y: root.height - Theme.frameThickness - size
-        visible: card.y < root.height - Theme.frameThickness
+    // bottom edge strip's top edge -- same trick as ScreenCorner's own four
+    // wedges, just at the two points where this sheet happens to interrupt
+    // the strip instead of at a true screen corner.
+    //
+    // A child of card riding its own 460px slide spent almost the whole
+    // animation clipped below the screen, only clearing it in the last
+    // ~25px -- that read as popping in rather than sliding. And animating
+    // this Item's own y directly between two expressions built from
+    // root.height reintroduced the exact bug card's own slide had: swap to
+    // a shorter monitor between one open and the next and the Behavior
+    // interpolates from a y computed for the old screen's height, which no
+    // longer means "flush with this screen's strip" on the new one.
+    //
+    // So: same shape as card's own fix, and as the pill's slide in
+    // LevelOSD/LevelIndicator -- anchors give this wrapper's resting
+    // position instantly and correctly on whatever screen it's on right
+    // now, with no Behavior watching them, and a transform slides it by a
+    // fixed, screen-independent distance (its own size) on top of that.
+    // The wedge itself is a plain, un-animated child, along for the ride --
+    // it never needs to know it's moving at all.
+    //
+    // bottomMargin drops to 0 while fullscreen, same fallback ScreenCorner
+    // and LevelIndicator's own wedges use: the bottom strip it's normally
+    // inset to share a few pixels with is covered by the fullscreen window,
+    // so flush with the true edge is what actually lines up with it.
+    Item {
+        x: card.x - Theme.cornerRadius
+        width: Theme.cornerRadius
+        height: Theme.cornerRadius
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
+
+        transform: Translate {
+            y: root.wantOpen ? 0 : Theme.cornerRadius
+
+            Behavior on y {
+                NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
+            }
+        }
+
+        CornerWedge {
+            anchors.fill: parent
+            corner: "bottomRight"
+        }
     }
 
-    CornerWedge {
-        corner: "bottomLeft"
+    Item {
         x: card.x + card.width
-        y: root.height - Theme.frameThickness - size
-        visible: card.y < root.height - Theme.frameThickness
+        width: Theme.cornerRadius
+        height: Theme.cornerRadius
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
+
+        transform: Translate {
+            y: root.wantOpen ? 0 : Theme.cornerRadius
+
+            Behavior on y {
+                NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
+            }
+        }
+
+        CornerWedge {
+            anchors.fill: parent
+            corner: "bottomLeft"
+        }
     }
 
     // Hyprland triggers these by name (`hl.dsp.global("quickshell:launcher")`),

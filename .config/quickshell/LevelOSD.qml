@@ -29,6 +29,14 @@ PanelWindow {
     property bool brightnessShown: false
     readonly property bool anyShown: volumeShown || brightnessShown
 
+    // A fullscreen window still renders EdgeStrip above it, but covers the
+    // space it's reserved, so it ends up hidden behind it in practice. Each
+    // pill's own top/bottom wedges are normally inset to share the strip's
+    // last few pixels with it; with nothing there to share, that inset is
+    // just a gap between the wedge and the true edge. See ScreenCorner for
+    // the other half of this same fix.
+    readonly property bool fullscreen: Hyprland.focusedMonitor?.activeWorkspace?.hasFullscreen ?? false
+
     // Stay mapped through the slide-out: the moment both flags drop, x
     // starts animating back off-edge, but visible would otherwise flip to
     // false on the same tick and unmap the surface mid-slide instead of
@@ -56,7 +64,12 @@ PanelWindow {
 
     implicitWidth: volumePill.width
 
-    readonly property real stackHeight: volumePill.height + Theme.gap + brightnessPill.height
+    // Each pill's own top/bottom corner wedges reach cornerRadius past its
+    // edge to round its seam with the strip; closer than twice that and the
+    // two pills' wedges would overlap into each other instead of each
+    // meeting the strip cleanly.
+    readonly property real pillSpacing: Theme.cornerRadius * 2
+    readonly property real stackHeight: volumePill.height + pillSpacing + brightnessPill.height
 
     Timer {
         id: volumeHide
@@ -87,29 +100,39 @@ PanelWindow {
     LevelIndicator {
         id: volumePill
         y: (parent.height - root.stackHeight) / 2
+        level: Volume.muted ? 0 : Volume.percentage / 100
+        icon: Volume.icon
+        fullscreen: root.fullscreen
+
         // Off past the window's own edge when hidden, in place when shown --
         // the window itself is already clear of the screen's right edge via
         // margins.right, so sliding out just means leaving this pill's own
-        // footprint.
-        x: root.volumeShown ? 0 : width + Theme.gap
-        level: Volume.muted ? 0 : Volume.percentage / 100
-        icon: Volume.icon
+        // footprint. A transform, not the pill's own x, so its corner
+        // wedges (children of it, see LevelIndicator) ride the same motion
+        // without needing any animation of their own -- same pattern
+        // Overlay's card and its wedges use.
+        transform: Translate {
+            x: root.volumeShown ? 0 : volumePill.width + Theme.gap
 
-        Behavior on x {
-            NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
+            Behavior on x {
+                NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
+            }
         }
     }
 
     LevelIndicator {
         id: brightnessPill
-        anchors.top: volumePill.bottom
-        anchors.topMargin: Theme.gap
-        x: root.brightnessShown ? 0 : width + Theme.gap
+        y: volumePill.y + volumePill.height + root.pillSpacing
         level: Brightness.percentage / 100
         icon: Brightness.icon
+        fullscreen: root.fullscreen
 
-        Behavior on x {
-            NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
+        transform: Translate {
+            x: root.brightnessShown ? 0 : brightnessPill.width + Theme.gap
+
+            Behavior on x {
+                NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
+            }
         }
     }
 }

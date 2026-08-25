@@ -26,7 +26,10 @@ ModifierOnlyKeyTimeout=250
 0=Shift_L
 
 [Hotkey/EnumerateForwardKeys]
-0=Super+space
+# Super+space moved to Hyprland's own keybind (hyprland.lua), which also
+# nudges Quickshell's Keyboard.qml to refresh immediately -- fcitx5 has no
+# DBus signal for a switch, so leaving it here meant Quickshell only found
+# out on its next poll tick.
 
 [Hotkey/PrevPage]
 0=Up

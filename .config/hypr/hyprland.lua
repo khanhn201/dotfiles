@@ -80,11 +80,23 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user restart xdg-desktop-portal")
     hl.exec_cmd("hyprpm reload")
     -- hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
-    hl.exec_cmd("hyprlock")
+    -- LockScreen.qml (quickshell) is the lock now; see services/Menus.qml's
+    -- power-menu entry and LockScreen.qml's GlobalShortcut.
     hl.exec_cmd("hyprctl reload")
     hl.exec_cmd("qs -n")
-    hl.exec_cmd("dunst")
-    hl.exec_cmd("hyprpaper")
+    -- NotificationPopup.qml (quickshell) is the notification server now;
+    -- dunst competed with it for the org.freedesktop.Notifications DBus
+    -- name and, whichever won the race, silently ate the other's toasts.
+    -- Wallpaper.qml (quickshell) renders the background directly, too --
+    -- no separate wallpaper daemon.
+
+    -- Lock on login, same as a greeter would -- deferred rather than fired
+    -- right here, since quickshell (just exec'd above) needs a moment to
+    -- actually load and register its GlobalShortcut before the dispatch
+    -- below would find anything listening.
+    hl.timer(function()
+        hl.dispatch(hl.dsp.global("quickshell:lock"))
+    end, { timeout = 2500, type = "oneshot" })
 end)
 
 
@@ -243,6 +255,23 @@ hl.bind(mainMod .. " + Q", function()
     hl.dispatch(hl.dsp.window.alter_zorder({ mode = "top" }))
 end)
 
+-- Input method cycling. This used to be fcitx5's own Super+space hotkey
+-- (~/.config/fcitx5/config), invisible to Hyprland entirely -- fcitx5
+-- intercepts its trigger keys from the raw input stream itself, so Hyprland
+-- never saw a "switch" happen and Quickshell's Keyboard.qml had nothing to
+-- react to but a 1s poll of `fcitx5-remote -n`. Owning the bind here means
+-- Hyprland *is* the thing deciding the switch, so it can nudge Quickshell
+-- (services/Keyboard.qml's GlobalShortcut) the same tick, same pattern as
+-- the volume/brightness keys already used for their OSD pop.
+hl.bind(mainMod .. " + space", function()
+    hl.dispatch(hl.dsp.exec_cmd(
+        "bash -c 'case \"$(fcitx5-remote -n)\" in " ..
+        "keyboard-us) n=mozc;; mozc) n=unikey;; *) n=keyboard-us;; " ..
+        "esac; fcitx5-remote -s \"$n\"'"
+    ))
+    hl.dispatch(hl.dsp.global("quickshell:keyboard"))
+end)
+
 -- Move focus with mainMod + arrow keys
 -- One dispatcher for all four directions. movefocus walks the scrolling layout
 -- on its own -- columns with left/right, the windows stacked in a column with
@@ -301,8 +330,8 @@ hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_S
 -- much slower. The bigger step is what makes a held key cover ground at roughly
 -- the same speed as volume. Tune this number, not repeat_rate -- repeat_rate
 -- never gets a chance to apply here.
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 5%+"),                               { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl --min-value=10 set 5%-"),               { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 1%+"),                               { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl --min-value=10 set 1%-"),               { locked = true, repeating = true })
 
 
 -----------------------------------

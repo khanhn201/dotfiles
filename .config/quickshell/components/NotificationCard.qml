@@ -23,7 +23,9 @@ StyledRectangle {
     tone: {
         if (notification.urgency === NotificationUrgency.Critical) return "errorContainer";
         if (notification.urgency === NotificationUrgency.Low) return "surfaceContainer";
-        return "surfaceContainerHigh";
+        // Same M3 role as Theme.colorFrame -- a normal-urgency toast reads
+        // as the same surface the bar itself sits on.
+        return "surfaceContainerHighest";
     }
     radius: Theme.radiusLarge
     // A plain Rectangle doesn't bind its own height to implicitHeight the

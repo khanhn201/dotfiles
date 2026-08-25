@@ -11,4 +11,5 @@ Scope {
     Overlay {}
     NotificationPopup {}
     LevelOSD {}
+    LockScreen {}
 }

@@ -42,6 +42,10 @@ Singleton {
     readonly property int barWidth: railThickness + 2 * framePadding
     property int cornerRadius: 15
     property int frameThickness: 10
+    // The media pill's own height -- Bar.qml's the only reader, but it's a
+    // deliberate size (not derived from anything else the way barWidth is),
+    // so it lives here rather than as a literal sitting in the layout file.
+    property int mediaPillHeight: 420
 
     // Dot-rail metrics, shared by the workspace slider and the column
     // indicator so the two instruments stay identical. The top strip has to
@@ -54,7 +58,7 @@ Singleton {
     // the curve than for the flat rectangle's edge, so the two pieces come
     // out with centres 0.5px apart. Barely visible as a systemic offset, but
     // very visible as a seam exactly where the flat top meets the curve.
-    property int railDotActive: Math.floor((railThickness - 4) / 2) * 2
+    property int railDotActive: railThickness
     property int railIcon: railDotActive*0.9
     property int railDotIdle: 14
     property int railDotSpacing: 10
@@ -69,12 +73,26 @@ Singleton {
     // thickness plus padding on both sides.
     readonly property int frameThicknessTop: Math.round((railThickness / 2) + railHalfCutExtension) + framePadding
 
+    // Which M3 tone the recessed "rail" reads as everywhere it shows up:
+    // DotRail's well, IconRail's well, MediaPill idle, LevelIndicator/
+    // LevelOSD's track. A tone *name* -- a tonePairs key below, not a colour
+    // literal -- so trying a different M3 role for the whole set at once is
+    // one line here instead of hunting down every Theme.colorX literal
+    // across the shell. colorRail/colorOnRail resolve it through the same
+    // toneColor/toneOnColor pair every other tone-driven surface uses, so
+    // content sitting on the rail keeps proper M3 contrast if this changes.
+    property string railColor: "surfaceContainerLowest"
+    readonly property color colorRail: toneColor(railColor)
+    readonly property color colorOnRail: toneOnColor(railColor)
+
     // ── Colour ──
     // Every role below is derived from the wallpaper by
-    // hypr/scripts/m3-from-wallpaper.py and lives in the generated Colors.qml,
-    // which Hyprland and hyprlock read from too (as colors.lua / colors.conf),
-    // so the whole desktop moves together. Re-run that script after changing
-    // the wallpaper. Nothing here should be a literal.
+    // quickshell/scripts/m3-from-wallpaper.py and lives in the generated
+    // Colors.qml, which Hyprland (colors.lua, for its own border colours)
+    // and hyprlock (colors.conf, if ever run manually) read from too, so
+    // the whole desktop moves together. Wallpapers.qml's apply() and
+    // ThemeMode.qml's toggle() both call it directly; nothing here should
+    // be a literal.
     //
     // Which of Colors.qml's two schemes is live: ThemeMode.isDark is a plain
     // mutable property (unlike everything Colors.qml itself exposes, which is

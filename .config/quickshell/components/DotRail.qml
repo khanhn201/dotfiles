@@ -78,7 +78,7 @@ Item {
             visible: !root.halfCut
             anchors.fill: parent
             radius: root.thickness / 2
-            color: Theme.colorSurfaceContainer
+            color: Theme.colorRail
         }
 
         Item {
@@ -88,7 +88,7 @@ Item {
             Rectangle {
                 width: parent.width
                 height: root.extension
-                color: Theme.colorSurfaceContainer
+                color: Theme.colorRail
             }
 
             Item {
@@ -102,7 +102,7 @@ Item {
                     width: parent.width
                     height: root.thickness
                     radius: root.thickness / 2
-                    color: Theme.colorSurfaceContainer
+                    color: Theme.colorRail
                     anchors.bottom: parent.bottom
                 }
             }
@@ -132,7 +132,7 @@ Item {
                     required property int index
                     required property var modelData
                     readonly property bool current: modelData === true
-                    readonly property color dotColor: current ? Theme.colorPrimary : Theme.colorOnSurfaceVariant
+                    readonly property color dotColor: current ? Theme.colorPrimary : Theme.colorOnRail
 
                     width: root.dotActive
                     height: root.halfCut ? Math.round(root.dotActive / 2 + root.extension) : root.dotActive
