@@ -1,5 +1,6 @@
 pragma Singleton
 import Quickshell
+import Quickshell.Io
 import QtQuick
 
 // The menus that used to be rofi scripts: the app launcher, the power
@@ -12,6 +13,60 @@ Singleton {
     property string mode: ""
 
     readonly property string scripts: Quickshell.env("HOME") + "/.config/quickshell/scripts"
+
+    // How many times each launcher entry (by desktop-entry id) has been
+    // launched -- survives restarts, same JSON-file-under-config pattern
+    // Wallpapers.qml's own state uses. JsonAdapter writes this back to disk
+    // on every property change, so bumping a count is just reassigning the
+    // whole object (a nested mutation alone wouldn't notify it).
+    FileView {
+        path: Quickshell.env("HOME") + "/.config/quickshell/launch-counts.json"
+        printErrors: false
+
+        JsonAdapter {
+            id: usage
+            property var counts: ({})
+        }
+    }
+
+    function launchCount(id: string): int {
+        return usage.counts[id] ?? 0;
+    }
+
+    function recordLaunch(id: string): void {
+        const counts = Object.assign({}, usage.counts);
+        counts[id] = (counts[id] ?? 0) + 1;
+        usage.counts = counts;
+    }
+
+    // Subsequence fuzzy match, fzf-lite: -1 when query's characters don't
+    // all appear in text in order, otherwise a score where higher is a
+    // better match. Consecutive runs and matches right after a word
+    // boundary score best, same shape as fzf's own simplified scoring, so
+    // "fx" ranks "firefox" above "some other app with an f and an x in it".
+    function fuzzyScore(text: string, query: string): real {
+        if (query === "")
+            return 0;
+        const t = text.toLowerCase();
+        const q = query.toLowerCase();
+        let ti = 0, run = 0, score = 0;
+        for (let qi = 0; qi < q.length; qi++) {
+            const idx = t.indexOf(q[qi], ti);
+            if (idx === -1)
+                return -1;
+            run = (idx === ti) ? run + 1 : 1;
+            score += run * 2 - (idx - ti);
+            if (idx === 0 || t[idx - 1] === " " || t[idx - 1] === "-")
+                score += 5;
+            ti = idx + 1;
+        }
+        // Reward a tightly-packed match and a shorter overall haystack --
+        // an exact short name beats a long description containing the same
+        // scattered letters.
+        score -= (ti - q.length);
+        score -= t.length * 0.01;
+        return score;
+    }
 
     function toggle(which: string) {
         root.mode = (root.mode === which) ? "" : which;
@@ -34,49 +89,88 @@ Singleton {
     // through Session rather than an exec -- LockScreen.qml is our own lock
     // now, not a separate hyprlock process to spawn.
     readonly property var power: [
-        { icon: "󰌾", label: "Lock",     action: () => { root.close(); Session.lockRequested(); } },
-        { icon: "󰜉", label: "Reboot",   exec: ["systemctl", "reboot"] },
-        { icon: "󰐥", label: "Shutdown", exec: ["systemctl", "poweroff"] }
+        { icon: "lock",     label: "Lock",     action: () => { root.close(); Session.lockRequested(); } },
+        { icon: "reboot",   label: "Reboot",   exec: ["systemctl", "reboot"] },
+        { icon: "shutdown", label: "Shutdown", exec: ["systemctl", "poweroff"] }
     ]
 
     readonly property var screenshot: [
-        { icon: "󰍹", label: "Capture Desktop", exec: [root.scripts + "/screenshot.sh", "desktop"] },
-        { icon: "󰆞", label: "Capture Area",    exec: [root.scripts + "/screenshot.sh", "area"] },
-        { icon: "󰖲", label: "Capture Window",  exec: [root.scripts + "/screenshot.sh", "window"] }
+        { icon: "screenshot_desktop", label: "Capture Desktop", exec: [root.scripts + "/screenshot.sh", "desktop"] },
+        { icon: "screenshot_area",    label: "Capture Area",    exec: [root.scripts + "/screenshot.sh", "area"] },
+        { icon: "screenshot_window",  label: "Capture Window",  exec: [root.scripts + "/screenshot.sh", "window"] }
     ]
 
     // The command palette (SUPER + `). Each entry runs its own action rather
     // than a fixed exec, so a command can do something other than spawn a
     // process -- Pick Wallpaper opens a second menu instead.
     readonly property var commands: [
-        { icon: "🖼", label: "Pick Wallpaper", action: () => { root.mode = "wallpaperPicker"; } },
+        { icon: "wallpaper", label: "Pick Wallpaper", action: () => { root.mode = "wallpaperPicker"; } },
         {
-            icon: ThemeMode.isDark ? "🌙" : "☀️",
+            icon: ThemeMode.isDark ? "theme_dark" : "theme_light",
             label: ThemeMode.isDark ? "Switch to Light" : "Switch to Dark",
             action: () => { root.close(); ThemeMode.toggle(); }
+        },
+        // pkexec refuses to elevate a script sitting in a user-writable
+        // directory (bind_and_boot lives in ~/qemu/bin), so this goes
+        // through Sudo.qml -- its own prompt, not Polkit.qml's -- rather
+        // than the system polkit agent every other privileged action here
+        // would use.
+        {
+            icon: "boot_vm",
+            label: "Boot Windows (VM)",
+            action: () => {
+                root.close();
+                Sudo.request(["/home/nekoconn/qemu/bin/bind_and_boot"], "Authenticate to bind the GPU and boot the Windows VM");
+            }
         }
     ]
 
-    // Installed applications, filtered by a query and sorted by name. Matches
-    // the same fields rofi's -drun-match-fields all did.
+    // Installed applications, filtered by a fuzzy query and ranked by match
+    // quality, then how often each one gets launched. Matches the same
+    // fields rofi's -drun-match-fields all did, just fuzzily instead of by
+    // plain substring.
     function apps(query: string): var {
-        const q = (query || "").trim().toLowerCase();
-        const out = [];
+        const q = (query || "").trim();
+        const scored = [];
 
         for (const entry of DesktopEntries.applications.values) {
             if (entry.noDisplay)
                 continue;
-            if (q !== "") {
-                const hay = [entry.name, entry.genericName, entry.comment, (entry.keywords || []).join(" ")]
-                    .filter(v => !!v).join(" ").toLowerCase();
-                if (!hay.includes(q))
-                    continue;
+
+            if (q === "") {
+                scored.push({ entry, score: 0 });
+                continue;
             }
-            out.push(entry);
+
+            // Matching the name itself always outranks only matching a
+            // keyword/description -- otherwise an app whose blurb happens
+            // to contain the query reads as equally relevant as one whose
+            // actual name does.
+            const nameScore = root.fuzzyScore(entry.name, q);
+            const otherHay = [entry.genericName, entry.comment, (entry.keywords || []).join(" ")]
+                .filter(v => !!v).join(" ");
+            const otherScore = root.fuzzyScore(otherHay, q);
+            if (nameScore === -1 && otherScore === -1)
+                continue;
+
+            scored.push({ entry, score: nameScore !== -1 ? nameScore + 1000 : otherScore });
         }
 
-        out.sort((a, b) => a.name.localeCompare(b.name));
-        return out;
+        scored.sort((a, b) => {
+            // Frequency only breaks ties between comparably-good matches --
+            // a much better text match should still win over a more-used
+            // app that barely matches at all, and with no query at all it's
+            // the only signal there is.
+            const scoreDiff = b.score - a.score;
+            if (q !== "" && Math.abs(scoreDiff) > 0.5)
+                return scoreDiff;
+            const freqDiff = root.launchCount(b.entry.id) - root.launchCount(a.entry.id);
+            if (freqDiff !== 0)
+                return freqDiff;
+            return a.entry.name.localeCompare(b.entry.name);
+        });
+
+        return scored.map(s => s.entry);
     }
 
     // What the overlay is currently listing.
@@ -117,6 +211,7 @@ Singleton {
     // hyprctl reload calls elsewhere in this shell.
     function launch(entry: var) {
         root.close();
+        root.recordLaunch(entry.id);
         // Terminal entries carry a bare command; give them one, as rofi did.
         const argv = entry.runInTerminal ? ["kitty", "-e"].concat(entry.command) : entry.command;
         const shellCmd = root.shellQuote(argv);

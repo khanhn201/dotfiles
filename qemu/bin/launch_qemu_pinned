@@ -1,0 +1,23 @@
+#!/bin/bash
+# Must run as root (via sudo). Creates a qemu.slice cgroup scope pinned to
+# CPUs 4-15 (the vCPU/IO cores; 0-3 stay free for the host -- see
+# isolate_host_cpus to also exclude host tasks from 4-15) and execs
+# boot_windows inside it as the real user, so it still finds the login
+# session's PipeWire/PulseAudio socket for -audiodev pa.
+#
+# AllowedCPUs= needs the cpuset cgroup controller, which this system doesn't
+# delegate to slices by default -- enable it once (idempotent, runtime-only).
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run with sudo privileges. Exiting."
+    exit 1
+fi
+
+grep -q cpuset /sys/fs/cgroup/cgroup.subtree_control || echo +cpuset > /sys/fs/cgroup/cgroup.subtree_control
+
+exec systemd-run --scope --unit=qemu-windows --slice=qemu.slice \
+    -p AllowedCPUs=4-15 \
+    --uid=nekoconn --gid=nekoconn \
+    --setenv=XDG_RUNTIME_DIR=/run/user/1000 \
+    --setenv=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus \
+    -- /home/nekoconn/qemu/bin/boot_windows

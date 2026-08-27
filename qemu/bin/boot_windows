@@ -11,8 +11,12 @@ qemu-system-x86_64 \
     -rtc base=utc,clock=host,driftfix=slew \
     -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd \
     -drive if=pflash,format=raw,file=/tmp/my_OVMF_VARS.4m.fd \
-    -drive file=/dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D,media=disk,format=raw,cache=none,if=virtio \
-    -drive file=/dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part2,media=disk,format=raw,cache=none,if=virtio \
+    -object iothread,id=iothread0 \
+    -object iothread,id=iothread1 \
+    -drive file=/dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D,if=none,id=drive0,format=raw,cache=none,aio=io_uring,discard=unmap,detect-zeroes=unmap \
+    -device virtio-blk-pci,drive=drive0,iothread=iothread0 \
+    -drive file=/dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part2,if=none,id=drive1,format=raw,cache=none,aio=io_uring,discard=unmap,detect-zeroes=unmap \
+    -device virtio-blk-pci,drive=drive1,iothread=iothread1 \
     -cdrom /home/nekoconn/qemu/virtio-win.iso \
     -nic user,id=nic0,smb=/home/nekoconn/,model=virtio-net-pci \
     -vga none \

@@ -28,13 +28,44 @@ Scope {
     // without this, typing while looking at one screen would show nothing
     // on the other.
     property string passwordText: ""
+    property string pamError: ""
 
     function lock() {
         if (sessionLock.locked)
             return;
         root.passwordText = "";
+        root.pamError = "";
         sessionLock.locked = true;
         pam.start();
+    }
+
+    // Lock on login, same as a greeter would. QS_LOCK_ON_START is set only
+    // on hyprland.lua's own genuine hyprland.start exec of `qs -n` -- but a
+    // *reload* (any file save Quickshell picks up, not just a manual
+    // restart) reuses the same process and re-runs every Component.onCompleted
+    // from scratch, and env vars don't go away on their own. Gating on the
+    // env var alone re-locked the session on every single reload for the
+    // rest of that process's life, well past actual login -- confirmed
+    // live, this is what was really behind repeated unexpected locks this
+    // session. PersistentProperties survives a reload (unlike a plain QML
+    // property, which resets with the rest of the tree), so it's the one
+    // thing that can actually remember "already consumed" across reloads
+    // within the same process -- and it has to be checked from its own
+    // `onLoaded`, not root's Component.onCompleted: rootwrapper.cpp runs
+    // completeCreate() (which fires every Component.onCompleted) *before*
+    // generation->onReload() restores persisted values, so checking from
+    // onCompleted would always see the fresh, unrestored default.
+    PersistentProperties {
+        id: lockOnStartState
+        reloadableId: "lockOnStartState"
+        property bool consumed: false
+
+        onLoaded: {
+            if (!consumed && Quickshell.env("QS_LOCK_ON_START") === "1") {
+                consumed = true;
+                root.lock();
+            }
+        }
     }
 
     // One conversation, not one per screen: there is exactly one session to
@@ -42,7 +73,15 @@ Scope {
     // attempt.
     PamContext {
         id: pam
-        config: "hyprlock"
+        // Our own service, not "hyprlock" -- hyprlock itself isn't
+        // installed (this replaces it), so that PAM service name never
+        // existed on this system. Without a matching /etc/pam.d file,
+        // start() fails silently: responseRequired never becomes true, so
+        // the password field looks alive but Enter is a permanent no-op --
+        // a real lockout with no on-screen sign anything's wrong (this is
+        // exactly what happened; see onError below for the fix to that
+        // part).
+        config: "qslock"
         user: Quickshell.env("USER")
 
         onCompleted: result => {
@@ -54,6 +93,13 @@ Scope {
             // the prompt is live again instead of dead-ending here.
             root.passwordText = "";
             pam.start();
+        }
+
+        // Surface a broken PAM setup instead of a permanently-dead prompt
+        // (see the config comment above) -- shown in place of the message
+        // area below the password field.
+        onError: error => {
+            root.pamError = PamError.toString(error);
         }
     }
 
@@ -82,7 +128,7 @@ Scope {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: passwordField.forceActiveFocus()
+                onClicked: passwordField.input.forceActiveFocus()
             }
 
             Column {
@@ -113,72 +159,61 @@ Scope {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: Theme.gap
 
-                    StyledRectangle {
+                    RailField {
+                        id: passwordField
+
                         anchors.horizontalCenter: parent.horizontalCenter
-                        tone: "surfaceContainerHigh"
-                        radius: Theme.radiusMedium
-                        implicitWidth: 320
-                        implicitHeight: 52
+                        width: 320
+                        height: 52
+                        placeholder: "Password"
+                        centerText: true
 
-                        TextInput {
-                            id: passwordField
+                        // PAM prompts are usually the password itself
+                        // (masked), but a module can ask for something it
+                        // wants echoed back in the clear -- follow whichever
+                        // it's actually asking for.
+                        input.echoMode: pam.responseVisible ? TextInput.Normal : TextInput.Password
+                        input.focus: true
 
-                            anchors.fill: parent
-                            anchors.margins: Theme.gap * 1.5
-                            verticalAlignment: TextInput.AlignVCenter
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeTitleMedium
-                            color: Theme.colorOnSurface
-                            selectionColor: Theme.colorPrimary
-                            selectedTextColor: Theme.colorOnPrimary
-                            // PAM prompts are usually the password itself
-                            // (masked), but a module can ask for something
-                            // it wants echoed back in the clear -- follow
-                            // whichever it's actually asking for.
-                            echoMode: pam.responseVisible ? TextInput.Normal : TextInput.Password
-                            focus: true
+                        // Seeds this field from whatever's already been
+                        // typed (e.g. reconnecting to an in-progress
+                        // attempt), but typing breaks a plain `text:`
+                        // binding permanently -- onTextEdited (user input
+                        // only, never fired by the assignment below) pushes
+                        // local changes out, and the Connections handler
+                        // pulls remote ones back in for every field whose
+                        // own binding has broken.
+                        input.text: root.passwordText
+                        input.onTextEdited: root.passwordText = input.text
 
-                            // Seeds this field from whatever's already been
-                            // typed (e.g. reconnecting to an in-progress
-                            // attempt), but typing breaks a plain `text:`
-                            // binding permanently -- onTextEdited (user
-                            // input only, never fired by the assignment
-                            // below) pushes local changes out, and the
-                            // Connections handler pulls remote ones back in
-                            // for every field whose own binding has broken.
-                            text: root.passwordText
-                            onTextEdited: root.passwordText = text
-
-                            Connections {
-                                target: root
-                                function onPasswordTextChanged() {
-                                    if (passwordField.text !== root.passwordText)
-                                        passwordField.text = root.passwordText;
-                                }
-                            }
-
-                            Keys.onPressed: event => {
-                                if (event.key === Qt.Key_Escape) {
-                                    root.passwordText = "";
-                                    event.accepted = true;
-                                    return;
-                                }
-                                if (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter)
-                                    return;
-                                if (pam.responseRequired && root.passwordText.length > 0)
-                                    pam.respond(root.passwordText);
-                                event.accepted = true;
-                            }
-
-                            StyledText {
-                                anchors.verticalCenter: parent.verticalCenter
-                                visible: passwordField.text === ""
-                                variant: "titleMedium"
-                                color: Theme.colorOnSurfaceVariant
-                                opacity: 0.7
-                                text: "Password"
+                        Connections {
+                            target: root
+                            function onPasswordTextChanged() {
+                                if (passwordField.text !== root.passwordText)
+                                    passwordField.text = root.passwordText;
                             }
                         }
+
+                        input.Keys.onPressed: event => {
+                            if (event.key === Qt.Key_Escape) {
+                                root.passwordText = "";
+                                event.accepted = true;
+                                return;
+                            }
+                            if (event.key !== Qt.Key_Return && event.key !== Qt.Key_Enter)
+                                return;
+                            if (pam.responseRequired && root.passwordText.length > 0)
+                                pam.respond(root.passwordText);
+                            event.accepted = true;
+                        }
+                    }
+
+                    StyledText {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        visible: root.pamError !== ""
+                        variant: "bodyMedium"
+                        color: Theme.colorError
+                        text: root.pamError
                     }
                 }
             }

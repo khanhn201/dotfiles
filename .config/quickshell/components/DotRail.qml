@@ -17,26 +17,15 @@ Item {
     required property var dots      // array of bool: is this dot the current one
     property bool vertical: true
     // The top strip's rail hangs below the strip's own edge rather than
-    // sitting fully enclosed in it: each dot renders as its own bottom half
-    // only -- a flat top edge, a short straight run, then a true semicircle.
-    //
-    // This is NOT done with Rectangle's per-corner radius (topLeftRadius: 0,
-    // bottomLeftRadius: width/2, etc). That looked right in theory but Qt
-    // caps every corner's *effective* radius at min(radius, width/2,
+    // sitting fully enclosed in it: each dot (and the well itself) renders
+    // as its own bottom half only -- a flat top edge, a short straight run,
+    // then a true semicircle. Both use CornerRect, which exists specifically
+    // because Qt's per-corner radius caps out at min(radius, width/2,
     // height/2) using the rectangle's own full height -- even for a corner
-    // whose opposite corner is zero, so there's no actual room conflict.
-    // Once a dot's height (radius + a straight extension) dropped much below
-    // its width, the requested width/2 radius silently shrank to roughly
-    // height/2, and the curve stopped short of the centre instead of closing
-    // into a point -- confirmed by rendering the two shapes in isolation and
-    // measuring the pixel profile.
-    //
-    // The fix is to never ask Rectangle for a radius its own height can't
-    // satisfy: draw the dot as a full circle at its natural (width == height)
-    // proportions, where the cap is never hit, then reveal only its bottom
-    // half through a clipped Item. A separate flat, radius-less Rectangle
-    // covers the straight extension above it. Two ordinary shapes, neither
-    // of which ever hits the cap, seamed together.
+    // whose opposite corner is zero, so there's no actual room conflict --
+    // and a straight `bottomLeftRadius: width/2` on a short shape silently
+    // shrinks below what was asked for. See CornerRect.qml's own comment for
+    // how it dodges that.
     property bool halfCut: false
     readonly property real extension: Theme.railHalfCutExtension
 
@@ -65,47 +54,17 @@ Item {
         visible: root.count > 0
 
         // Recessed out of the surface it sits on -- a lower-tone fill is what
-        // reads as a well, no rim needed. Same fix as the dot, same reason:
-        // asking a thickness/2-plus-extension-tall Rectangle for corner
-        // radius thickness/2 hits Qt's min(radius, width/2, height/2) cap
-        // and the end caps stop short of a true quarter-circle. A stadium at
-        // its natural height (radius already equal to height/2, never
-        // capped) reveals a correct bottom half -- flat run, then both
-        // rounded ends -- once clipped, because a stadium's corner curves
-        // are exactly as tall as its own half-height to begin with, so the
-        // clip line lands precisely on their widest point.
-        Rectangle {
-            visible: !root.halfCut
+        // reads as a well, no rim needed. CornerRect handles the halfCut
+        // case's flat-run-then-round-cap shape in one piece (see its own
+        // comment for why that needs special handling at all).
+        CornerRect {
             anchors.fill: parent
             radius: root.thickness / 2
             color: Theme.colorRail
-        }
-
-        Item {
-            visible: root.halfCut
-            anchors.fill: parent
-
-            Rectangle {
-                width: parent.width
-                height: root.extension
-                color: Theme.colorRail
-            }
-
-            Item {
-                anchors.top: parent.top
-                anchors.topMargin: root.extension
-                width: parent.width
-                height: root.thickness / 2
-                clip: true
-
-                Rectangle {
-                    width: parent.width
-                    height: root.thickness
-                    radius: root.thickness / 2
-                    color: Theme.colorRail
-                    anchors.bottom: parent.bottom
-                }
-            }
+            roundTopLeft: !root.halfCut
+            roundTopRight: !root.halfCut
+            roundBottomLeft: true
+            roundBottomRight: true
         }
 
         Grid {
@@ -156,55 +115,17 @@ Item {
                             NumberAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
                         }
 
-                        // Full circle at its natural proportions -- never
-                        // capped, since radius (width/2) already equals
-                        // height/2 exactly.
-                        Rectangle {
-                            visible: !root.halfCut
+                        CornerRect {
                             anchors.fill: parent
                             radius: width / 2
                             color: cell.dotColor
+                            roundTopLeft: !root.halfCut
+                            roundTopRight: !root.halfCut
+                            roundBottomLeft: true
+                            roundBottomRight: true
 
                             Behavior on color {
                                 ColorAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
-                            }
-                        }
-
-                        // Half-cut: a flat cap for the straight run, then the
-                        // same natural, never-capped circle, revealed only
-                        // from its own vertical centre down.
-                        Item {
-                            visible: root.halfCut
-                            anchors.fill: parent
-
-                            Rectangle {
-                                width: parent.width
-                                height: root.extension
-                                color: cell.dotColor
-
-                                Behavior on color {
-                                    ColorAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
-                                }
-                            }
-
-                            Item {
-                                anchors.top: parent.top
-                                anchors.topMargin: root.extension
-                                width: parent.width
-                                height: parent.width / 2
-                                clip: true
-
-                                Rectangle {
-                                    width: parent.width
-                                    height: parent.width
-                                    radius: width / 2
-                                    color: cell.dotColor
-                                    anchors.bottom: parent.bottom
-
-                                    Behavior on color {
-                                        ColorAnimation { duration: Theme.durationMedium; easing.type: Theme.easingStandard }
-                                    }
-                                }
                             }
                         }
                     }

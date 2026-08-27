@@ -78,7 +78,7 @@ StyledRectangle {
         // a single rounded dot sitting at the bottom (the icon's home),
         // rather than shrinking away to nothing -- 100% has it flush with
         // the top, filling the rail.
-        property real fillHeight: Math.max(width, well.height * Math.max(0, Math.min(1, pill.level)))
+        property real fillHeight: width + (well.height-width) * Math.max(0, Math.min(1, pill.level))
 
         Behavior on fillHeight {
             NumberAnimation { duration: Theme.durationShort; easing.type: Theme.easingStandard }

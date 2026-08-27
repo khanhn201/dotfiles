@@ -1,0 +1,17 @@
+#!/bin/bash
+# Confines host tasks (your desktop session + system services) to CPUs 0-3,
+# leaving 4-15 exclusively for the VM's vCPU/IO threads. Runtime-only --
+# resets on reboot regardless. Undo with restore_host_cpus.
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run with sudo privileges. Exiting."
+    exit 1
+fi
+
+grep -q cpuset /sys/fs/cgroup/cgroup.subtree_control || echo +cpuset > /sys/fs/cgroup/cgroup.subtree_control
+
+systemctl set-property --runtime -- user.slice AllowedCPUs=0-3
+systemctl set-property --runtime -- system.slice AllowedCPUs=0-3
+systemctl set-property --runtime -- init.scope AllowedCPUs=0-3
+
+echo "Host confined to CPUs 0-3. Cores 4-15 are reserved for the VM."

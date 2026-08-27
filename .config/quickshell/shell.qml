@@ -12,4 +12,6 @@ Scope {
     NotificationPopup {}
     LevelOSD {}
     LockScreen {}
+    AuthPrompt {}
+    ScreenPicker {}
 }

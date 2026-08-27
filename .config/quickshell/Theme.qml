@@ -26,7 +26,14 @@ Singleton {
         font.pixelSize: theme.mainFontSize
         text: "00"
     }
-    readonly property int railThickness: Math.ceil(clockDigitsMetrics.width)
+    // Rounded up to an even number, not just up to a whole pixel: every
+    // rail-thickness-derived formula below (railGutter, DotRail's own
+    // `thickness`) divides this by 2, and an odd value there silently
+    // truncates the .5 result when it lands back in an int property --
+    // DotRail's actual rendered thickness drifting 1px from this value
+    // itself, which IconRail/LevelIndicator's well use directly. Rounding
+    // up (never down) keeps this at least as wide as the measured "00".
+    readonly property int railThickness: Math.ceil(clockDigitsMetrics.width / 2) * 2
 
     // Space *between* sibling components in the bar (workspace rail, media
     // pill, each indicator).
@@ -41,7 +48,7 @@ Singleton {
     // them by hand.
     readonly property int barWidth: railThickness + 2 * framePadding
     property int cornerRadius: 15
-    property int frameThickness: 10
+    property int frameThickness: 15
     // The media pill's own height -- Bar.qml's the only reader, but it's a
     // deliberate size (not derived from anything else the way barWidth is),
     // so it lives here rather than as a literal sitting in the layout file.
@@ -50,22 +57,25 @@ Singleton {
     // Dot-rail metrics, shared by the workspace slider and the column
     // indicator so the two instruments stay identical. The top strip has to
     // be thick enough to hold a horizontal rail, so it derives its own
-    // thickness. The dot is sized down to fit railThickness with real gutter
-    // around it, rather than the well being stretched out to the dot.
-    // Rounded down to an even number: DotRail's half-cut dot is built from a
-    // flat rectangle stacked on a clipped circle, and an odd width puts the
-    // circle's own centre on a half-pixel -- Qt rounds that differently for
-    // the curve than for the flat rectangle's edge, so the two pieces come
-    // out with centres 0.5px apart. Barely visible as a systemic offset, but
-    // very visible as a seam exactly where the flat top meets the curve.
+    // thickness. Equal to railThickness, not independently sized: an odd
+    // dot width puts its circle's own centre on a half-pixel, which Qt
+    // rounds differently for the curve than for a flat rectangle edge --
+    // that showed up as a real seam where DotRail's flat top met its
+    // curve. railThickness is itself guaranteed even now (see its own
+    // comment above), so this just inherits that guarantee rather than
+    // re-deriving it.
     property int railDotActive: railThickness
-    property int railIcon: railDotActive*0.9
+    // Math.round, not the bare multiply -- *0.9 is only ever exactly an
+    // integer when railDotActive happens to be a multiple of 10, so this
+    // was otherwise silently truncating (not rounding) whatever fraction
+    // fell out, same class of error as railThickness above.
+    property int railIcon: railDotActive
     property int railDotIdle: 14
     property int railDotSpacing: 10
     readonly property int railGutter: (railThickness - railDotActive) / 2
     // How far the well and each dot run straight before curving into their
     // half-cut bottom, instead of the curve starting right at the flat top.
-    property int railHalfCutExtension: 6
+    property int railHalfCutExtension: 0
     // DotRail's halfCut mode draws the well as its own bottom half only --
     // a real flat top edge, a straight run, then a semicircular bottom --
     // so this only needs to fit that (plus the straight extension, sized off

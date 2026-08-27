@@ -1,0 +1,13 @@
+#!/bin/bash
+# Undoes isolate_host_cpus: lets host tasks use all 16 CPUs again.
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run with sudo privileges. Exiting."
+    exit 1
+fi
+
+systemctl set-property --runtime -- user.slice AllowedCPUs=0-15
+systemctl set-property --runtime -- system.slice AllowedCPUs=0-15
+systemctl set-property --runtime -- init.scope AllowedCPUs=0-15
+
+echo "Host restored to all CPUs (0-15)."

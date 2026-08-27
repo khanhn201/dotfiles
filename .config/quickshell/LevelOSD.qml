@@ -83,13 +83,37 @@ PanelWindow {
         onTriggered: root.brightnessShown = false
     }
 
+    // Volume.percentage/muted each settle asynchronously and independently
+    // -- Pipewire's own connection resolving in its own time, not a real
+    // volume change -- so the very first change to either would otherwise
+    // pop this pill open on every shell startup. Brightness reads its
+    // value synchronously (FileView's blockLoading), so it has no
+    // equivalent moment and needs no guard here.
+    //
+    // Swallowing each one's first-ever fire, whenever that happens, rather
+    // than gating on a fixed delay or on Volume.sink itself turning non-
+    // null: percentage was observed settling to its real value in a later,
+    // separate step from sink resolving, past any short deferred window:
+    // there's no fixed point in time to gate on, only "the first time each
+    // one changes at all."
+    property bool volumePercentageSettled: false
+    property bool volumeMutedSettled: false
+
     // Every change re-triggers the same pulse, so holding a volume/backlight
     // key down keeps the pill on screen instead of it flickering in and out
     // between individual steps.
     Connections {
         target: Volume
-        function onPercentageChanged() { root.volumeShown = true; volumeHide.restart(); }
-        function onMutedChanged() { root.volumeShown = true; volumeHide.restart(); }
+        function onPercentageChanged() {
+            if (!root.volumePercentageSettled) { root.volumePercentageSettled = true; return; }
+            root.volumeShown = true;
+            volumeHide.restart();
+        }
+        function onMutedChanged() {
+            if (!root.volumeMutedSettled) { root.volumeMutedSettled = true; return; }
+            root.volumeShown = true;
+            volumeHide.restart();
+        }
     }
 
     Connections {

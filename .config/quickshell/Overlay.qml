@@ -60,7 +60,7 @@ PanelWindow {
         if (wantOpen) {
             root.selected = 0;
             search.text = "";
-            search.forceActiveFocus();
+            search.input.forceActiveFocus();
         } else {
             hideLinger.restart();
         }
@@ -152,75 +152,39 @@ PanelWindow {
         ColumnLayout {
             id: layout
             anchors.fill: parent
-            anchors.margins: Theme.gap * 4
+            anchors.margins: Theme.framePadding
             spacing: Theme.gap * 2
 
             // Search, launcher only. It keeps the key focus in every mode so
             // navigation is handled in one place; the other two menus simply
             // have nothing to filter.
-            StyledRectangle {
+            RailField {
+                id: search
+
                 Layout.fillWidth: true
                 implicitHeight: 44
                 visible: root.isLauncher
-                // One step down from surfaceContainerHighest, not that tone
-                // itself -- the card's own background is colorFrame now,
-                // which *is* surfaceContainerHighest, so matching it here
-                // would make the search box invisible against it.
-                tone: "surfaceContainerHigh"
-                radius: Theme.radiusMedium
+                icon: "search"
+                placeholder: "Search applications"
 
-                StyledText {
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 14
-                    variant: "titleMedium"
-                    color: Theme.colorOnSurfaceVariant
-                    text: "󰍉"
-                }
+                input.focus: true
+                input.onTextChanged: root.selected = 0
 
-                TextInput {
-                    id: search
-
-                    anchors.fill: parent
-                    anchors.leftMargin: 42
-                    anchors.rightMargin: 14
-                    verticalAlignment: TextInput.AlignVCenter
-
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeTitleMedium
-                    color: Theme.colorOnSurface
-                    selectionColor: Theme.colorPrimary
-                    selectedTextColor: Theme.colorOnPrimary
-                    clip: true
-                    focus: true
-
-                    onTextChanged: root.selected = 0
-
-                    Keys.onPressed: event => {
-                        if (event.key === Qt.Key_Escape) {
-                            Menus.back();
-                        } else if (event.key === Qt.Key_Up) {
-                            root.move(-1);
-                        } else if (event.key === Qt.Key_Down) {
-                            root.move(1);
-                        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                            root.activate();
-                        } else if (event.key === Qt.Key_Tab) {
-                            root.move(event.modifiers & Qt.ShiftModifier ? -1 : 1);
-                        } else {
-                            return;
-                        }
-                        event.accepted = true;
+                input.Keys.onPressed: event => {
+                    if (event.key === Qt.Key_Escape) {
+                        Menus.back();
+                    } else if (event.key === Qt.Key_Up) {
+                        root.move(-1);
+                    } else if (event.key === Qt.Key_Down) {
+                        root.move(1);
+                    } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        root.activate();
+                    } else if (event.key === Qt.Key_Tab) {
+                        root.move(event.modifiers & Qt.ShiftModifier ? -1 : 1);
+                    } else {
+                        return;
                     }
-
-                    StyledText {
-                        anchors.verticalCenter: parent.verticalCenter
-                        visible: search.text === ""
-                        variant: "titleMedium"
-                        color: Theme.colorOnSurfaceVariant
-                        opacity: 0.6
-                        text: "Search applications"
-                    }
+                    event.accepted = true;
                 }
             }
 
@@ -240,33 +204,21 @@ PanelWindow {
                 // Keep the selection in view when arrowing past the fold.
                 onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
 
-                delegate: Rectangle {
+                delegate: RailListItem {
                     id: row
 
                     required property int index
                     required property var modelData
-                    readonly property bool current: index === root.selected
+                    current: index === root.selected
 
                     width: list.width
                     height: root.isWallpaperPicker ? 64 : 44
-                    radius: Theme.radiusMedium
-                    color: current ? Theme.colorPrimary : "transparent"
 
-                    Behavior on color {
-                        ColorAnimation { duration: Theme.durationShort; easing.type: Theme.easingStandard }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onEntered: root.selected = row.index
-                        onClicked: root.activate()
-                    }
+                    onHovered: root.selected = row.index
+                    onActivated: root.activate()
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.leftMargin: 14
-                        anchors.rightMargin: 14
                         spacing: 14
 
                         // Launcher entries carry a themed icon name; power
@@ -309,18 +261,18 @@ PanelWindow {
                             }
 
                             // Whatever the row needs when there is no image: the
-                            // menu entry's glyph, or a generic one for an app
-                            // with no themed icon. font.pixelSize overrides
-                            // variant's own binding -- these are glyphs
-                            // standing in for icons, so they're sized like
-                            // one (Theme.railIcon), not like the row's text.
-                            StyledText {
+                            // menu entry's own vendored icon, or a generic
+                            // one for an app with no themed icon -- same
+                            // SvgIcon/Theme.railIcon every other icon in the
+                            // shell uses, not a Nerd Font glyph standing in
+                            // for one.
+                            SvgIcon {
                                 anchors.centerIn: parent
                                 visible: !appIcon.visible && !root.isWallpaperPicker
-                                variant: "titleMedium"
-                                font.pixelSize: Theme.railIcon
+                                width: Theme.railIcon
+                                height: Theme.railIcon
                                 color: row.current ? Theme.colorOnPrimary : Theme.colorOnSurface
-                                text: root.isLauncher ? "󰣆" : row.modelData.icon
+                                name: root.isLauncher ? "app_generic" : row.modelData.icon
                             }
                         }
 

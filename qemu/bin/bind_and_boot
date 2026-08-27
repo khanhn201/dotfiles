@@ -1,0 +1,20 @@
+#!/bin/bash
+# Runs bind_vfio, then drops a marker so Hyprland auto-launches
+# boot_windows_aff once you're logged back in.
+#
+# It can't just chain boot_windows_aff directly: bind_vfio restarts
+# display-manager.service, which drops the current session, and
+# boot_windows needs a live PipeWire session (for -audiodev pa) that only
+# exists again after you log back in. See boot_windows_aff_if_pending,
+# wired into ~/.config/hypr/hyprland.lua's autostart block.
+
+if [ "$EUID" -ne 0 ]; then
+    echo "This script must be run with sudo privileges. Exiting."
+    exit 1
+fi
+
+marker=/tmp/qemu-vfio-boot-pending
+touch "$marker"
+chmod 666 "$marker"
+
+exec /home/nekoconn/qemu/bin/bind_vfio

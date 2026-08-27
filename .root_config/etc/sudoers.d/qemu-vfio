@@ -1,0 +1,2 @@
+nekoconn ALL=(root) NOPASSWD: /usr/bin/cpupower frequency-set -g performance
+nekoconn ALL=(root) NOPASSWD: /home/nekoconn/qemu/bin/launch_qemu_pinned

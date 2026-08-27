@@ -1,0 +1,22 @@
++ gpu=0000:01:00.0
++ aud=0000:01:00.1
+++ cat /sys/bus/pci/devices/0000:01:00.0/vendor
+++ cat /sys/bus/pci/devices/0000:01:00.0/device
++ gpu_vd='0x10de 0x2d19'
+++ cat /sys/bus/pci/devices/0000:01:00.1/vendor
+++ cat /sys/bus/pci/devices/0000:01:00.1/device
++ aud_vd='0x10de 0x22eb'
++ systemctl stop display-manager.service
++ sleep 0.5
++ modprobe vfio_pci
++ sleep 0.5
++ echo 0000:01:00.0
++ echo 0000:01:00.1
++ echo '0x10de 0x2d19'
++ echo '0x10de 0x22eb'
++ sleep 0.5
++ systemctl restart display-manager.service
++ sleep 0.5
++ chmod 0666 /dev/vfio/15 /dev/vfio/devices /dev/vfio/vfio
++ chmod 0666 /dev/disk/by-id/nvme-eui.002538b941a062f3 /dev/disk/by-id/nvme-eui.002538b941a062f3-part1 /dev/disk/by-id/nvme-eui.002538b941a062f3-part2 /dev/disk/by-id/nvme-eui.002538b941a062f3-part3 /dev/disk/by-id/nvme-eui.002538b941a062f3-part4 /dev/disk/by-id/nvme-eui.002538b941a062f3-part5 /dev/disk/by-id/nvme-eui.ace42e005150cbbd /dev/disk/by-id/nvme-eui.ace42e005150cbbd-part1 /dev/disk/by-id/nvme-eui.ace42e005150cbbd-part2 /dev/disk/by-id/nvme-eui.ace42e005150cbbd-part3 /dev/disk/by-id/nvme-eui.ace42e005150cbbd-part4 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part1 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part2 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part3 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part4 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E_1-part5 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E-part1 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E-part2 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E-part3 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E-part4 /dev/disk/by-id/nvme-Samsung_SSD_980_PRO_2TB_S76ENU0X903095E-part5 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D_1 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D_1-part1 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D_1-part2 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D_1-part3 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D_1-part4 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D-part1 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D-part2 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D-part3 /dev/disk/by-id/nvme-SKHynix_HFS001TEM4X182N_5ME5N000911505A5D-part4
++ chmod 0666 /dev/kvmfr0

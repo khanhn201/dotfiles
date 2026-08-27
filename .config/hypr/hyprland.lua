@@ -75,28 +75,34 @@ hl.on("hyprland.start", function()
     -- hl.exec_cmd(terminal)
     -- hl.exec_cmd("nm-applet")
     hl.exec_cmd("fcitx5")
-    hl.exec_cmd("systemctl --user start hyprpolkitagent")
     hl.exec_cmd("systemctl --user start xdg-desktop-portal-hyprland")
     hl.exec_cmd("systemctl --user restart xdg-desktop-portal")
     hl.exec_cmd("hyprpm reload")
+    -- Polkit.qml (quickshell) is the polkit agent now, replacing
+    -- hyprpolkitagent -- AuthPrompt.qml renders its prompts.
     -- hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
     -- LockScreen.qml (quickshell) is the lock now; see services/Menus.qml's
     -- power-menu entry and LockScreen.qml's GlobalShortcut.
     hl.exec_cmd("hyprctl reload")
-    hl.exec_cmd("qs -n")
+    -- QS_LOCK_ON_START tells LockScreen.qml (Component.onCompleted) to lock
+    -- itself the moment it's actually ready, rather than Hyprland guessing
+    -- how long quickshell's startup takes and dispatching blind after a
+    -- fixed delay -- that raced quickshell's real startup time, which
+    -- varies with boot load, and lost often enough to matter. Only set on
+    -- this genuine hyprland.start exec, never on a manual `qs -n` restart
+    -- mid-session, so reloading the shell while iterating on it doesn't
+    -- also lock the screen.
+    hl.exec_cmd("QS_LOCK_ON_START=1 qs -n")
+    -- Auto-boots the Windows VM if bind_and_boot left a pending marker
+    -- (see /home/nekoconn/qemu/bin/boot_windows_aff_if_pending); a no-op
+    -- on a normal login.
+    hl.exec_cmd("/home/nekoconn/qemu/bin/boot_windows_aff_if_pending")
     -- NotificationPopup.qml (quickshell) is the notification server now;
     -- dunst competed with it for the org.freedesktop.Notifications DBus
     -- name and, whichever won the race, silently ate the other's toasts.
     -- Wallpaper.qml (quickshell) renders the background directly, too --
     -- no separate wallpaper daemon.
 
-    -- Lock on login, same as a greeter would -- deferred rather than fired
-    -- right here, since quickshell (just exec'd above) needs a moment to
-    -- actually load and register its GlobalShortcut before the dispatch
-    -- below would find anything listening.
-    hl.timer(function()
-        hl.dispatch(hl.dsp.global("quickshell:lock"))
-    end, { timeout = 2500, type = "oneshot" })
 end)
 
 

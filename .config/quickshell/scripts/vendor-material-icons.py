@@ -71,6 +71,22 @@ ICONS = {
     "media_paused": "pause",
 
     "notification": "notifications",
+
+    # Overlay.qml's menus (power/screenshot/commands) and the launcher/search
+    # -- previously Nerd Font glyphs, which don't share a drawing canvas or
+    # optical weight with these, so they never quite matched size-for-size.
+    "lock": "lock",
+    "reboot": "restart_alt",
+    "shutdown": "power_settings_new",
+    "boot_vm": "desktop_windows",
+    "screenshot_desktop": "monitor",
+    "screenshot_area": "crop",
+    "screenshot_window": "select_window",
+    "wallpaper": "image",
+    "theme_dark": "dark_mode",
+    "theme_light": "light_mode",
+    "app_generic": "apps",
+    "search": "search",
 }
 
 

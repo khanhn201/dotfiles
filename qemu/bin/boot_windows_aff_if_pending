@@ -1,0 +1,13 @@
+#!/bin/bash
+# Auto-started by Hyprland on every login (see hyprland.lua's AUTOSTART
+# block). Only actually boots the VM if bind_and_boot dropped the pending
+# marker just before restarting the display manager -- a normal login is a
+# harmless no-op.
+
+marker=/tmp/qemu-vfio-boot-pending
+[ -f "$marker" ] || exit 0
+rm -f "$marker"
+
+# Give PipeWire/WirePlumber a moment to be reachable for -audiodev pa.
+sleep 3
+exec /home/nekoconn/qemu/bin/boot_windows_aff
