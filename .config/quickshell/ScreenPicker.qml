@@ -142,7 +142,7 @@ PanelWindow {
         }
 
         color: Theme.colorFrame
-        radius: Theme.cornerRadius
+        radius: Theme.radius
         bottomLeftRadius: 0
         bottomRightRadius: 0
 
@@ -260,7 +260,7 @@ PanelWindow {
 
                             Rectangle {
                                 anchors.fill: parent
-                                radius: Theme.radiusMedium * 0.6
+                                radius: Theme.radius
                                 color: "black"
                             }
 
@@ -318,14 +318,14 @@ PanelWindow {
     }
 
     Item {
-        x: card.x - Theme.cornerRadius
-        width: Theme.cornerRadius
-        height: Theme.cornerRadius
+        x: card.x - Theme.radius
+        width: Theme.radius
+        height: Theme.radius
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
 
         transform: Translate {
-            y: root.wantOpen ? 0 : Theme.cornerRadius
+            y: root.wantOpen ? 0 : Theme.radius
 
             Behavior on y {
                 NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
@@ -337,13 +337,13 @@ PanelWindow {
 
     Item {
         x: card.x + card.width
-        width: Theme.cornerRadius
-        height: Theme.cornerRadius
+        width: Theme.radius
+        height: Theme.radius
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
 
         transform: Translate {
-            y: root.wantOpen ? 0 : Theme.cornerRadius
+            y: root.wantOpen ? 0 : Theme.radius
 
             Behavior on y {
                 NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }

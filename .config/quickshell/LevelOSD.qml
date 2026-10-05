@@ -41,7 +41,13 @@ PanelWindow {
     // starts animating back off-edge, but visible would otherwise flip to
     // false on the same tick and unmap the surface mid-slide instead of
     // after it.
-    visible: anyShown || hideLinger.running
+    //
+    // Never unmapped, though: on Hyprland, a layer surface unmapping while a
+    // window is fullscreen makes the Top-layer bars flash back over it
+    // (mapping it doesn't). The window is click-through (mask below) and
+    // fully transparent when both pills are slid out, so leaving it mapped
+    // costs nothing visible.
+    visible: true
     color: "transparent"
 
     onAnyShownChanged: if (!anyShown) hideLinger.restart()
@@ -57,6 +63,13 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
+    // Purely a display: an empty input region makes the surface fully
+    // click-through. Without it, the full-height window sits over the
+    // pointer's spot at the right edge, and when it unmaps the compositor
+    // re-enters the pointer into the fullscreen video, which the player
+    // reads as mouse movement and pops its control bar.
+    mask: Region {}
+
     // Flush with the true screen edge, not clear of it -- the whole point
     // is to look continuous with the right edge strip sitting there, not to
     // float just past it with a gap showing between them.
@@ -68,7 +81,7 @@ PanelWindow {
     // edge to round its seam with the strip; closer than twice that and the
     // two pills' wedges would overlap into each other instead of each
     // meeting the strip cleanly.
-    readonly property real pillSpacing: Theme.cornerRadius * 2
+    readonly property real pillSpacing: Theme.radius * 2
     readonly property real stackHeight: volumePill.height + pillSpacing + brightnessPill.height
 
     Timer {

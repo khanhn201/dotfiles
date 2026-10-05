@@ -92,7 +92,7 @@ PanelWindow {
         }
 
         color: Theme.colorFrame
-        radius: Theme.cornerRadius
+        radius: Theme.radius
         bottomLeftRadius: 0
         bottomRightRadius: 0
 
@@ -114,7 +114,7 @@ PanelWindow {
             StyledRectangle {
                 Layout.fillWidth: true
                 tone: "surfaceContainerHigh"
-                radius: Theme.radiusMedium
+                radius: Theme.radius
                 implicitHeight: 44
 
                 TextInput {
@@ -165,14 +165,14 @@ PanelWindow {
     }
 
     Item {
-        x: card.x - Theme.cornerRadius
-        width: Theme.cornerRadius
-        height: Theme.cornerRadius
+        x: card.x - Theme.radius
+        width: Theme.radius
+        height: Theme.radius
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
 
         transform: Translate {
-            y: root.wantOpen ? 0 : Theme.cornerRadius
+            y: root.wantOpen ? 0 : Theme.radius
 
             Behavior on y {
                 NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
@@ -184,13 +184,13 @@ PanelWindow {
 
     Item {
         x: card.x + card.width
-        width: Theme.cornerRadius
-        height: Theme.cornerRadius
+        width: Theme.radius
+        height: Theme.radius
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
 
         transform: Translate {
-            y: root.wantOpen ? 0 : Theme.cornerRadius
+            y: root.wantOpen ? 0 : Theme.radius
 
             Behavior on y {
                 NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }

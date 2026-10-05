@@ -10,8 +10,8 @@ Scope {
     required property ShellScreen modelData
 
     Wallpaper { screen: root.modelData }
-    Bar { screen: root.modelData }
-    TopBar { screen: root.modelData }
+    BarLeft { screen: root.modelData }
+    BarTop { screen: root.modelData }
     EdgeStrip { screen: root.modelData; edge: "right" }
     EdgeStrip { screen: root.modelData; edge: "bottom" }
 

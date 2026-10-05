@@ -1,5 +1,3 @@
-// Themed Text; `variant` names an M3 type-scale step resolved from Theme
-// (e.g. "titleLarge" -> Theme.fontSizeTitleLarge).
 import QtQuick
 import "../"
 

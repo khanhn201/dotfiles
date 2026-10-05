@@ -1,8 +1,3 @@
-// A clipped label that scrolls in place when its content is wider than the
-// space it's given, instead of eliding it away -- scrolls once through to
-// the end, pausing at each end, then jumps back to the head and repeats.
-// Recentres immediately once it fits again (a track change from a long
-// title to a short one, say).
 import QtQuick
 
 import "../"
@@ -23,9 +18,6 @@ Item {
         id: label
     }
 
-    // A Binding, not a plain `x:` expression -- once the animation below has
-    // written to label.x directly, a plain binding stays broken for good.
-    // `when` is what re-establishes it the moment this stops overflowing.
     Binding {
         target: label
         property: "x"
@@ -37,7 +29,7 @@ Item {
         running: root.overflowing
         loops: Animation.Infinite
 
-        PauseAnimation { duration: 1200 }
+        PauseAnimation { duration: 500 }
         NumberAnimation {
             target: label
             property: "x"
@@ -46,7 +38,7 @@ Item {
             duration: Math.max(1200, (label.implicitWidth - root.width) * 40)
             easing.type: Easing.Linear
         }
-        PauseAnimation { duration: 1200 }
+        PauseAnimation { duration: 500 }
         // Straight back to the head, not a mirrored scroll -- a jump cut
         // reads as a loop; sliding back the way it came read as a bounce.
         PropertyAction { target: label; property: "x"; value: 0 }

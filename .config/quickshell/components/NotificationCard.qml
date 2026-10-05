@@ -27,16 +27,11 @@ StyledRectangle {
         // as the same surface the bar itself sits on.
         return "surfaceContainerHighest";
     }
-    radius: Theme.radiusLarge
+    radius: Theme.radius
     // A plain Rectangle doesn't bind its own height to implicitHeight the
     // way a Layout-managed child does -- this is a ListView delegate, which
     // reads the real height property, so it has to be set directly.
     height: layout.implicitHeight + 2 * Theme.framePadding
-
-    // Elevation shadow deliberately left off: Shadow.qml as layer.effect on
-    // a ListView delegate rendered the whole card blank -- likely a
-    // layer/source auto-wiring interaction specific to this combination.
-    // Worth another look, not blocking a working card.
 
     RowLayout {
         id: layout
@@ -71,7 +66,7 @@ StyledRectangle {
                     maskSource: Rectangle {
                         width: iconImage.width
                         height: iconImage.height
-                        radius: Theme.radiusSmall
+                        radius: Theme.radius
                         visible: false
                     }
                 }

@@ -15,7 +15,7 @@ fi
 
 grep -q cpuset /sys/fs/cgroup/cgroup.subtree_control || echo +cpuset > /sys/fs/cgroup/cgroup.subtree_control
 
-exec systemd-run --scope --unit=qemu-windows --slice=qemu.slice \
+exec systemd-run --scope --unit=qemu-windows --collect --slice=qemu.slice \
     -p AllowedCPUs=4-15 \
     --uid=nekoconn --gid=nekoconn \
     --setenv=XDG_RUNTIME_DIR=/run/user/1000 \

@@ -28,8 +28,8 @@ PanelWindow {
     readonly property bool fullscreen: hyprMonitor?.activeWorkspace?.hasFullscreen ?? false
 
     color: "transparent"
-    implicitWidth: Theme.cornerRadius
-    implicitHeight: Theme.cornerRadius
+    implicitWidth: Theme.radius
+    implicitHeight: Theme.radius
 
     anchors {
         top: root.atTop

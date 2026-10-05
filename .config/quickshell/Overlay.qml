@@ -142,7 +142,7 @@ PanelWindow {
         // Rounded where the sheet meets open screen (its own top corners,
         // same radius the corner wedges already use), square where it meets
         // the edge strips it's flush against.
-        radius: Theme.cornerRadius
+        radius: Theme.radius
         bottomLeftRadius: 0
         bottomRightRadius: 0
 
@@ -254,7 +254,7 @@ PanelWindow {
                             Rectangle {
                                 anchors.fill: parent
                                 visible: root.isWallpaperPicker
-                                radius: Theme.radiusSmall
+                                radius: Theme.radius
                                 color: "transparent"
                                 border.width: 1
                                 border.color: row.current ? Theme.colorOnPrimary : Theme.colorOutlineVariant
@@ -325,14 +325,14 @@ PanelWindow {
     // inset to share a few pixels with is covered by the fullscreen window,
     // so flush with the true edge is what actually lines up with it.
     Item {
-        x: card.x - Theme.cornerRadius
-        width: Theme.cornerRadius
-        height: Theme.cornerRadius
+        x: card.x - Theme.radius
+        width: Theme.radius
+        height: Theme.radius
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
 
         transform: Translate {
-            y: root.wantOpen ? 0 : Theme.cornerRadius
+            y: root.wantOpen ? 0 : Theme.radius
 
             Behavior on y {
                 NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }
@@ -347,13 +347,13 @@ PanelWindow {
 
     Item {
         x: card.x + card.width
-        width: Theme.cornerRadius
-        height: Theme.cornerRadius
+        width: Theme.radius
+        height: Theme.radius
         anchors.bottom: parent.bottom
         anchors.bottomMargin: root.fullscreen ? 0 : Theme.frameThickness
 
         transform: Translate {
-            y: root.wantOpen ? 0 : Theme.cornerRadius
+            y: root.wantOpen ? 0 : Theme.radius
 
             Behavior on y {
                 NumberAnimation { duration: Theme.durationLong; easing.type: Theme.easingStandard }

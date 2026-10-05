@@ -1,7 +1,8 @@
 {
-  "current_wallpaper": "/home/nekoconn/.config/hypr/wallpapers/wallpaper2.png",
+  "current_wallpaper": "/home/nekoconn/.config/hypr/wallpapers/wallpaper1.webp",
   "modes": {
     "/home/nekoconn/.config/hypr/wallpapers/wallpaper2.png": "dark",
-    "/home/nekoconn/.config/hypr/wallpapers/wallpaper.jpg": "dark"
+    "/home/nekoconn/.config/hypr/wallpapers/wallpaper.jpg": "dark",
+    "/home/nekoconn/.config/hypr/wallpapers/wallpaper1.webp": "dark"
   }
 }

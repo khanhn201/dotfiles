@@ -30,7 +30,7 @@ StyledRectangle {
     // against the true screen edge -- the same "frame corners are rounded
     // where they meet content, square where they meet the edge" logic
     // ScreenCorner already uses, just for a tab instead of a wedge.
-    radius: Theme.cornerRadius
+    radius: Theme.radius
     topRightRadius: 0
     bottomRightRadius: 0
 

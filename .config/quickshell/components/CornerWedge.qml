@@ -17,7 +17,7 @@ Shape {
     readonly property bool atTop: corner.startsWith("top")
     readonly property bool atLeft: corner.endsWith("Left")
 
-    property real size: Theme.cornerRadius
+    property real size: Theme.radius
     property color fillColor: Theme.colorFrame
 
     width: size
